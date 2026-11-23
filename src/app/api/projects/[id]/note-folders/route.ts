@@ -5,6 +5,8 @@ import { parseCreateNoteFolderPayload } from "@/lib/notes/validation";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -84,6 +86,24 @@ export async function POST(request: Request, { params }: { params: { id: string 
       "retzlo:sync",
       { action: "NOTE_FOLDER_CREATED", folderId: folder.id, senderId: userId }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/projects/${params.id}/note-folders`,
+      requestMethod: "POST",
+      category: "PROJECT",
+      action: "NOTE_FOLDER_CREATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "NOTE_FOLDER",
+      targetId: folder.id,
+      targetName: folder.name,
+      summary: `Created note folder "${folder.name}"`,
+      afterState: { id: folder.id, name: folder.name, color: folder.color, icon: folder.icon, projectId: folder.projectId }
+    });
 
     return NextResponse.json({ folder }, { status: 201 });
   } catch (error) {

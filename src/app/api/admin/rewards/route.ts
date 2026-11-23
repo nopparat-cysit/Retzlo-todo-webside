@@ -90,6 +90,10 @@ export async function PATCH(request: Request) {
       return jsonError("Redemption request not found.", 404);
     }
 
+    if (redemption.status !== "PENDING") {
+      return jsonError("Redemption request has already been processed.", 400);
+    }
+
     if (payload.status === "REJECTED") {
       // Refund coins to user
       await prisma.$transaction([
@@ -112,7 +116,15 @@ export async function PATCH(request: Request) {
           : prisma.user.update({
               where: { id: redemption.userId },
               data: { globalCoins: { increment: redemption.cost } }
-            })
+            }),
+        ...(redemption.reward.hasQuantity
+          ? [
+              prisma.reward.update({
+                where: { id: redemption.rewardId },
+                data: { quantity: { increment: redemption.quantity ?? 1 } }
+              })
+            ]
+          : [])
       ]);
     } else {
       await prisma.redemption.update({

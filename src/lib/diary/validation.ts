@@ -33,7 +33,7 @@ export const createDiaryItemSchema = z.object({
   repeatUnit: repeatUnitSchema.optional(),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   checklist: diaryChecklistSchema,
-  rewardCoins: z.coerce.number().int().min(0).max(100000).default(0),
+  rewardCoins: z.coerce.number().int().min(0).max(1000).default(0),
   rewardCoinType: rewardCoinTypeSchema.default("PROJECT"),
   rewardClaimedDates: z.array(dateKeySchema).default([]),
   dueTime: z.string().regex(/^\d{2}:\d{2}$/).nullable().optional(),

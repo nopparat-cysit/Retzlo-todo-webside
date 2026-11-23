@@ -6,6 +6,7 @@ import { CalendarClock, CheckCircle2, Eye, EyeOff, FileText, RotateCcw, Star } f
 import { Button } from "@/components/ui/button";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { EmptyState } from "@/components/ui/state";
+import { useToast } from "@/components/ui/toast";
 import { setRedStarItem } from "@/components/hub/fab-hub";
 import { formatMediumDate, formatMediumDateTime } from "@/lib/date-format";
 import { getCardColorMeta } from "@/lib/theme/card-colors";
@@ -29,6 +30,7 @@ interface NotesHubPanelProps {
 }
 
 export function NotesHubPanel({ initialNotes, projects }: NotesHubPanelProps) {
+  const { toast } = useToast();
   const [notes, setNotes] = useState<HubNote[]>(initialNotes);
   const [filter, setFilterState] = useState<NoteFilter>("all");
   const [projectFilter, setProjectFilterState] = useState<string>("all");
@@ -104,10 +106,13 @@ export function NotesHubPanel({ initialNotes, projects }: NotesHubPanelProps) {
     });
     const data = (await response.json()) as { note?: HubNote; error?: string };
     if (!response.ok || !data.note) {
-      setError(data.error ?? "Update failed.");
+      const errMsg = data.error ?? "Update failed.";
+      setError(errMsg);
+      toast({ message: errMsg, type: "error" });
       return;
     }
     setNotes((cur) => cur.map((n) => (n.id === data.note!.id ? { ...n, ...data.note! } : n)));
+    toast({ message: "Note updated!", type: "success" });
   }
 
   function toggleRedStar(note: HubNote) {
@@ -154,7 +159,7 @@ export function NotesHubPanel({ initialNotes, projects }: NotesHubPanelProps) {
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
           <FilterSelect
             triggerClassName="h-8"
             value={projectFilter}

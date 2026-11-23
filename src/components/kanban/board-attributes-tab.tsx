@@ -674,7 +674,7 @@ export function BoardAttributesTab({
   return (
     <div className="space-y-4 pt-1">
       {/* Sub-navigation Pills */}
-      <div className="flex items-center gap-1 border-b border-stone-200/70 pb-2 dark:border-white/10">
+      <div className="flex flex-wrap items-center gap-1 border-b border-stone-200/70 pb-2 dark:border-white/10">
         <button
           type="button"
           onClick={() => setActiveSubTab("status")}

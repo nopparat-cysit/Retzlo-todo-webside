@@ -2,6 +2,7 @@
 
 import { useRef, useState, DragEvent } from "react";
 import { Camera, Upload, User } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
 interface AvatarUploadProps {
@@ -11,6 +12,7 @@ interface AvatarUploadProps {
 }
 
 export function AvatarUpload({ currentAvatar, userName, onUploaded }: AvatarUploadProps) {
+  const { toast } = useToast();
   const [preview, setPreview] = useState<string | null>(currentAvatar);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -36,15 +38,25 @@ export function AvatarUpload({ currentAvatar, userName, onUploaded }: AvatarUplo
     const fd = new FormData();
     fd.append("file", file);
 
-    const res = await fetch("/api/profile/avatar", { method: "POST", body: fd });
-    const data = (await res.json()) as { avatar?: string; error?: string };
-    setIsUploading(false);
+    try {
+      const res = await fetch("/api/profile/avatar", { method: "POST", body: fd });
+      const data = (await res.json()) as { avatar?: string; error?: string };
+      setIsUploading(false);
 
-    if (!res.ok || !data.avatar) {
-      setError(data.error ?? "Upload failed.");
-      return;
+      if (!res.ok || !data.avatar) {
+        const errMsg = data.error ?? "Upload failed.";
+        setError(errMsg);
+        toast({ message: errMsg, type: "error" });
+        return;
+      }
+      toast({ message: "Avatar updated!", type: "success" });
+      onUploaded(data.avatar);
+    } catch {
+      setIsUploading(false);
+      const errMsg = "Network error while uploading avatar.";
+      setError(errMsg);
+      toast({ message: errMsg, type: "error" });
     }
-    onUploaded(data.avatar);
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {

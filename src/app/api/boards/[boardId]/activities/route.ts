@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { jsonError, parseError } from "@/lib/api";
-import { assertProjectMember, getProjectIdForBoard, requireUserId } from "@/lib/project-auth";
+import { assertProjectMember, canAccessBoard, requireUserId } from "@/lib/project-auth";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -16,18 +16,31 @@ export async function GET(
       return jsonError("Please sign in to continue.", 401);
     }
 
-    const projectId = await getProjectIdForBoard(params.boardId);
-    if (!projectId) {
+    const board = await prisma.board.findUnique({
+      where: { id: params.boardId },
+      select: {
+        id: true,
+        projectId: true,
+        isPrivate: true,
+        members: { select: { userId: true } }
+      }
+    });
+    if (!board) {
       return jsonError("Board not found.", 404);
     }
 
-    const membership = await assertProjectMember(projectId, userId);
+    const membership = await assertProjectMember(board.projectId, userId);
     if (!membership) {
       return jsonError("You do not have access to this project.", 403);
     }
 
+    if (!canAccessBoard(board, userId, membership.role)) {
+      return jsonError("You do not have access to this private board.", 403);
+    }
+
     const { searchParams } = new URL(request.url);
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "40", 10)));
+    const rawLimit = parseInt(searchParams.get("limit") || "40", 10);
+    const limit = Math.min(100, Math.max(1, Number.isNaN(rawLimit) ? 40 : rawLimit));
 
     const activities = await prisma.boardActivity.findMany({
       where: { boardId: params.boardId },

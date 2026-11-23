@@ -5,6 +5,7 @@ import { forgotPasswordSchema, generateOtp, getOtpExpiry, hashOtp, normalizeEmai
 import { sendPasswordResetOtp } from "@/lib/mail";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { createAuditLog } from "@/lib/audit/audit-logger";
 
 export async function POST(request: Request) {
   try {
@@ -37,6 +38,24 @@ export async function POST(request: Request) {
       }
     });
     await sendPasswordResetOtp({ email, otp });
+
+    void createAuditLog({
+      actorId: user.id,
+      actorEmail: email,
+      actorName: user.name,
+      ipAddress: ip,
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/auth/forgot-password",
+      requestMethod: "POST",
+      category: "AUTH",
+      action: "PASSWORD_RESET_REQUESTED",
+      severity: "NOTICE",
+      status: "SUCCESS",
+      targetType: "USER",
+      targetId: user.id,
+      targetName: email,
+      summary: `Password reset OTP requested for ${email}.`
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

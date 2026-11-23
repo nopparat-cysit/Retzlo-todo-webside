@@ -9,6 +9,8 @@ import { uploadToCloudinary } from "@/lib/cloudinary";
 import { isR2Configured, uploadToR2, R2_STORAGE_PATHS } from "@/lib/r2";
 import { triggerPusherEvent } from "@/lib/pusher/server";
 import { logBoardActivity } from "@/lib/kanban/activity-logger";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -34,14 +36,35 @@ export async function GET(
       return jsonError("Please sign in to continue.", 401);
     }
 
-    const projectId = await getProjectIdForCard(params.cardId);
-    if (!projectId) {
+    const card = await prisma.card.findUnique({
+      where: { id: params.cardId },
+      select: {
+        id: true,
+        column: {
+          select: {
+            board: {
+              select: {
+                id: true,
+                projectId: true,
+                isPrivate: true,
+                members: { select: { userId: true } }
+              }
+            }
+          }
+        }
+      }
+    });
+    if (!card) {
       return jsonError("Card not found.", 404);
     }
 
-    const membership = await assertProjectMember(projectId, userId);
+    const membership = await assertProjectMember(card.column.board.projectId, userId);
     if (!membership) {
       return jsonError("You do not have access to this project.", 403);
+    }
+
+    if (!canAccessBoard(card.column.board, userId, membership.role)) {
+      return jsonError("You do not have access to this private board.", 403);
     }
 
     const attachments = await prisma.cardAttachment.findMany({
@@ -147,6 +170,20 @@ export async function POST(
       size = file.size;
       fileType = file.type || "file";
 
+      const BLOCKED_MIMES = [
+        "text/html",
+        "application/xhtml+xml",
+        "image/svg+xml",
+        "application/javascript",
+        "text/javascript"
+      ];
+      if (
+        BLOCKED_MIMES.includes(fileType.toLowerCase()) ||
+        /\.(html|htm|svg|xhtml|js|mjs)$/i.test(name)
+      ) {
+        return jsonError("This file type is not allowed for security reasons.", 400);
+      }
+
       const buffer = await file.arrayBuffer();
 
       if (isR2Configured()) {
@@ -207,6 +244,24 @@ export async function POST(
         senderId: userId
       }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/cards/${params.cardId}/attachments`,
+      requestMethod: "POST",
+      category: "CARD",
+      action: "CARD_ATTACHMENT_ADDED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "CARD_ATTACHMENT",
+      targetId: attachment.id,
+      targetName: attachment.name,
+      summary: `Added attachment "${attachment.name}" to card "${card.title}"`,
+      metadata: { cardId: card.id, name: attachment.name, fileType: attachment.fileType, size: attachment.size }
+    });
 
     return NextResponse.json(
       {

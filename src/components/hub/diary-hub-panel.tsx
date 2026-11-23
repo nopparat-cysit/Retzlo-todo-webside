@@ -12,6 +12,7 @@ import { Input, Textarea } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/state";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
+import { useToast } from "@/components/ui/toast";
 import { setRedStarItem } from "@/components/hub/fab-hub";
 import {
   getDiaryChecklistSummary,
@@ -22,6 +23,7 @@ import {
 import { formatMediumDate } from "@/lib/date-format";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
+import type { DiaryRepeatUnit } from "@/lib/diary/recurrence";
 import type { ProjectDiaryItem } from "@/types/diary-item";
 
 const FILTER_KEY = "retrod:hub:diary:filter";
@@ -43,7 +45,7 @@ export interface DiaryPayload {
   description: string;
   color: CardColor;
   intervalDays: number;
-  repeatUnit?: "DAY" | "MONTH";
+  repeatUnit?: DiaryRepeatUnit;
   startDate: string;
   checklist: DiaryChecklistItem[];
   rewardCoins: number;
@@ -56,6 +58,7 @@ export interface DiaryPayload {
 }
 
 export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
+  const { toast } = useToast();
   const today = new Date().toISOString().slice(0, 10);
 
   // Persistent filter from localStorage
@@ -136,7 +139,8 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
     });
     const data = (await response.json()) as { diaryItem?: HubDiaryItem; error?: string };
     if (!response.ok || !data.diaryItem) {
-      setError(data.error ?? "Something went wrong.");
+      const errMsg = data.error ?? "Something went wrong.";
+      setError(errMsg);
       return null;
     }
     return normalizeItem(data.diaryItem);
@@ -144,16 +148,24 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
 
   async function createItem(payload: DiaryPayload) {
     const item = await saveItem("/api/hub/diary", "POST", payload);
-    if (!item) return;
+    if (!item) {
+      toast({ message: "Could not create diary.", type: "error" });
+      return;
+    }
     setItems((cur) => [item, ...cur]);
     setIsCreateOpen(false);
+    toast({ message: "Diary created!", type: "success" });
   }
 
   async function updateItem(itemId: string, payload: Partial<DiaryPayload>) {
     const item = await saveItem(`/api/diary-items/${itemId}`, "PATCH", payload);
-    if (!item) return false;
+    if (!item) {
+      toast({ message: "Could not update diary.", type: "error" });
+      return false;
+    }
     setItems((cur) => cur.map((i) => (i.id === item.id ? item : i)));
     setSelectedItem((cur) => (cur?.id === item.id ? item : cur));
+    toast({ message: "Diary updated!", type: "success" });
     return true;
   }
 
@@ -166,11 +178,14 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
     const response = await fetch(`/api/diary-items/${itemId}`, { method: "DELETE" });
     if (!response.ok) {
       const data = (await response.json()) as { error?: string };
-      setError(data.error ?? "Delete failed.");
+      const errMsg = data.error ?? "Delete failed.";
+      setError(errMsg);
+      toast({ message: errMsg, type: "error" });
       return;
     }
     setItems((cur) => cur.filter((i) => i.id !== itemId));
     setSelectedItem(null);
+    toast({ message: "Diary deleted!", type: "success" });
   }
 
   function toggleRedStar(item: HubDiaryItem) {
@@ -410,7 +425,7 @@ export function DiaryItemModal({
 }) {
   const [color, setColor] = useState<CardColor>(normalizeCardColor(item?.color));
   const [intervalDays, setIntervalDays] = useState(item?.intervalDays ?? 1);
-  const [repeatUnit, setRepeatUnit] = useState<"DAY" | "MONTH">(item?.repeatUnit ?? "DAY");
+  const [repeatUnit, setRepeatUnit] = useState<DiaryRepeatUnit>(item?.repeatUnit ?? "DAY");
   const [dueTime, setDueTime] = useState<string | null>(item?.dueTime ?? null);
   const [startDate, setStartDate] = useState(item?.startDate.slice(0, 10) ?? selectedDate);
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
@@ -535,7 +550,7 @@ export function DiaryItemModal({
       labelledBy="hub-diary-modal-title"
       contentClassName="max-w-5xl"
     >
-      <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-xl p-5" onSubmit={handleSubmit}>
+      <form className="lofi-panel flex max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-xl p-5" onSubmit={handleSubmit}>
         <div className="mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-4">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">
@@ -557,9 +572,9 @@ export function DiaryItemModal({
         </div>
 
         {/* 2-Column Layout: Left = Details, Settings & Coins | Right = Checklist Studio */}
-        <div className="grid min-h-0 flex-1 gap-6 overflow-hidden lg:grid-cols-[380px_minmax(0,1fr)]">
+        <div className="flex flex-col lg:grid min-h-0 flex-1 gap-6 overflow-y-auto lg:overflow-hidden scrollbar-soft lg:grid-cols-[380px_minmax(0,1fr)]">
           {/* Left Column: Details, Settings & Coins Reward */}
-          <div className="flex min-h-0 flex-col gap-4 overflow-y-auto pr-1 scrollbar-soft">
+          <div className="flex flex-col gap-4 lg:min-h-0 lg:overflow-y-auto pr-1 lg:scrollbar-soft">
             {/* Details Card */}
             <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.025] p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-dusk-lavender font-semibold">Details</p>
@@ -620,7 +635,7 @@ export function DiaryItemModal({
                 </label>
               ) : null}
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="block space-y-1 text-xs text-stone-400">
                   <span className="text-stone-300 font-medium">Start date</span>
                   <DatePicker
@@ -721,7 +736,7 @@ export function DiaryItemModal({
           </div>
 
           {/* Right Column: Checklist Studio */}
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="flex flex-col lg:min-h-0 lg:flex-1 lg:overflow-hidden">
             <DiaryChecklistEditor
               defaultRepeatDays={intervalDays}
               defaultStartDate={startDate}

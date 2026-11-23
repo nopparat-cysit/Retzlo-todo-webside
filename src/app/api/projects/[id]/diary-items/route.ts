@@ -9,6 +9,8 @@ import { prisma } from "@/lib/prisma";
 import { assertProjectMember, canToggleHiddenItem, isOwnerRole, requireUserId } from "@/lib/project-auth";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 function toDiaryItemResponse(
   item: {
@@ -186,6 +188,24 @@ export async function POST(request: Request, { params }: { params: { id: string 
       "retzlo:sync",
       { action: "DIARY_ITEM_CREATED", itemId: item.id, senderId: userId }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/projects/${params.id}/diary-items`,
+      requestMethod: "POST",
+      category: "PROJECT",
+      action: "DIARY_ITEM_CREATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "DIARY_ITEM",
+      targetId: item.id,
+      targetName: item.title,
+      summary: `Created diary item "${item.title}"`,
+      metadata: { title: item.title, intervalDays: item.intervalDays, repeatUnit: item.repeatUnit }
+    });
 
     return NextResponse.json(
       {

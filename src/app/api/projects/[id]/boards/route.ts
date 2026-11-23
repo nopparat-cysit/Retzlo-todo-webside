@@ -5,6 +5,8 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, isOwnerRole, requireUserId } from "@/lib/project-auth";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 import {
   BOARD_TEMPLATE_IDS,
   DEFAULT_BOARD_TEMPLATE_ID,
@@ -111,9 +113,18 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const payload = createBoardSchema.parse(body);
     const template = getBoardTemplate(payload.templateId);
 
-    const uniqueUserIds = Array.from(
+    const uniqueMemberIds = Array.from(
       new Set(payload.isPrivate ? [...payload.memberUserIds, userId] : payload.memberUserIds)
     );
+    let validMemberIds: string[] = [];
+    if (uniqueMemberIds.length > 0) {
+      const validMembers = await prisma.projectMember.findMany({
+        where: { projectId: params.id, userId: { in: uniqueMemberIds } },
+        select: { userId: true }
+      });
+      const validSet = new Set(validMembers.map((m) => m.userId));
+      validMemberIds = uniqueMemberIds.filter((uid) => validSet.has(uid));
+    }
 
     const board = await prisma.board.create({
       data: {
@@ -131,7 +142,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         },
         members: payload.isPrivate
           ? {
-              create: uniqueUserIds.map((uid) => ({
+              create: validMemberIds.map((uid) => ({
                 userId: uid
               }))
             }
@@ -158,6 +169,24 @@ export async function POST(request: Request, { params }: { params: { id: string 
       "retzlo:sync",
       { action: "BOARD_CREATED", boardId: board.id, senderId: userId }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/projects/${params.id}/boards`,
+      requestMethod: "POST",
+      category: "BOARD",
+      action: "BOARD_CREATED",
+      severity: "NOTICE",
+      status: "SUCCESS",
+      targetType: "BOARD",
+      targetId: board.id,
+      targetName: board.name,
+      summary: `Created board "${board.name}" in project ${params.id}`,
+      afterState: { id: board.id, name: board.name, projectId: board.projectId, isPrivate: board.isPrivate }
+    });
 
     return NextResponse.json(
       {

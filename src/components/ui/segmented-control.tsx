@@ -28,7 +28,7 @@ export function SegmentedControl<TValue extends string>({
   return (
     <div
       className={cn(
-        "segmented-control inline-flex min-w-0 rounded-lg border border-stone-200/90 bg-stone-100/90 p-1 dark:border-white/10 dark:bg-ink-950/45",
+        "segmented-control inline-flex min-w-0 max-w-full overflow-x-auto scrollbar-soft rounded-lg border border-stone-200/90 bg-stone-100/90 p-1 dark:border-white/10 dark:bg-ink-950/45",
         className
       )}
       role="group"

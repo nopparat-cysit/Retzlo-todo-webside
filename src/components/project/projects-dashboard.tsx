@@ -605,7 +605,7 @@ export function ProjectsDashboard({
 
   return (
     <main className="soft-grid-bg h-[100dvh] max-h-[100dvh] w-full overflow-hidden p-2.5 sm:p-4 lg:p-5 flex flex-col">
-      <div className="grid min-h-0 gap-4 lg:h-full lg:grid-cols-[320px_minmax(0,1fr)] 2xl:grid-cols-[320px_minmax(0,1fr)_360px]">
+      <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)] gap-4 lg:h-full lg:grid-cols-[320px_minmax(0,1fr)] 2xl:grid-cols-[320px_minmax(0,1fr)_360px]">
         <aside className="lofi-panel relative hidden lg:flex min-h-0 flex-col overflow-hidden rounded-2xl p-4 sm:p-5 lg:sticky lg:top-5 lg:h-[calc(100dvh-2.5rem)]">
           {/* Top Brand Header (Dedicated Row, Never Truncates) */}
           <div className="flex items-center justify-between border-b border-stone-200/80 pb-3.5 dark:border-white/10">
@@ -899,8 +899,8 @@ export function ProjectsDashboard({
                 )}
               </div>
             </div>
-            <div className="flex items-center justify-between gap-2.5 sm:gap-3">
-              <div className="flex min-w-0 items-center gap-3">
+            <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 sm:gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
                 {viewMode === "boards" && activeProject ? (
                   <>
                     <button
@@ -917,7 +917,7 @@ export function ProjectsDashboard({
                       <PopoverTrigger asChild>
                         <button
                           type="button"
-                          className="group flex min-w-0 max-w-[200px] min-[400px]:max-w-[260px] sm:max-w-xs md:max-w-sm items-center gap-2.5 rounded-xl border border-stone-200/90 bg-stone-50/80 px-3 py-1.5 text-left transition hover:border-indigo-400 hover:bg-white dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-dusk-lavender/50 dark:hover:bg-white/[0.07] data-[state=open]:border-indigo-400 dark:data-[state=open]:border-dusk-lavender/50"
+                          className="group flex min-w-0 max-w-full sm:max-w-xs md:max-w-sm items-center gap-2.5 rounded-xl border border-stone-200/90 bg-stone-50/80 px-3 py-1.5 text-left transition hover:border-indigo-400 hover:bg-white dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-dusk-lavender/50 dark:hover:bg-white/[0.07] data-[state=open]:border-indigo-400 dark:data-[state=open]:border-dusk-lavender/50"
                           aria-label="Switch active workspace"
                         >
                           <div className="grid h-8 w-8 place-items-center rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-600 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender shrink-0">
@@ -932,7 +932,7 @@ export function ProjectsDashboard({
                               <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-dusk-amber">
                                 Active Workspace
                               </span>
-                              <span className="text-[10px] text-stone-500 font-mono">· {projectList.length} total</span>
+                              <span className="text-[10px] text-stone-500 font-mono"><span className="hidden min-[380px]:inline">· {projectList.length} total</span></span>
                             </div>
                             <h2 className="flex items-center gap-1.5 truncate text-base sm:text-lg font-bold tracking-tight text-stone-900 group-hover:text-indigo-600 transition-colors dark:text-stone-100 dark:group-hover:text-dusk-lavender">
                               <span className="truncate">{activeProject.name}</span>
@@ -1083,7 +1083,7 @@ export function ProjectsDashboard({
                     {/* Launch Board CTA */}
                     <Link
                       href={`/project/${activeProject.id}/${activeProject.type === "DIARY" ? "diary" : "board"}`}
-                      className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-3.5 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:shadow-[0_8px_20px_rgba(169,162,255,0.2)] dark:hover:bg-dusk-amber"
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-2.5 sm:px-3.5 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:shadow-[0_8px_20px_rgba(169,162,255,0.2)] dark:hover:bg-dusk-amber"
                     >
                       <span>{activeProject.type === "DIARY" ? "Open Diary" : "Launch Board"}</span>
                       <ArrowRight className="h-3.5 w-3.5" />
@@ -1104,7 +1104,7 @@ export function ProjectsDashboard({
 
             {/* Sub-navigation bar when viewing active workspace boards */}
             {viewMode === "boards" && activeProject ? (
-              <div className="flex items-center justify-between gap-2 border-t border-stone-200/90 dark:border-white/10 pt-2 pb-0.5">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-t border-stone-200/90 dark:border-white/10 pt-2 pb-0.5">
                 <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
                   <button
                     type="button"
@@ -1165,7 +1165,7 @@ export function ProjectsDashboard({
                   </Link>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-1.5 border-l border-stone-200/80 pl-2 dark:border-white/10">
+                <div className="flex shrink-0 items-center justify-end gap-1.5 border-t sm:border-t-0 sm:border-l border-stone-200/80 pt-2 sm:pt-0 sm:pl-2 dark:border-white/10">
                   <button
                     type="button"
                     onClick={() => setViewMode("workspaces")}
@@ -1306,7 +1306,7 @@ export function ProjectsDashboard({
               ) : null}
 
               {/* Boards in Active Workspace Header + Filter Toolbar */}
-              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-stone-200 bg-stone-100 text-stone-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-dusk-lavender">
                     <KanbanSquare className="h-4 w-4" />
@@ -1319,8 +1319,8 @@ export function ProjectsDashboard({
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
-                  <div className="group/search relative flex items-center w-full sm:w-60">
+                <div className="flex items-center gap-2.5 flex-wrap md:flex-nowrap">
+                  <div className="group/search relative flex items-center w-full sm:flex-1 sm:min-w-[140px] md:w-56 md:flex-initial">
                     <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
                     <input
                       type="text"
@@ -1403,7 +1403,7 @@ export function ProjectsDashboard({
                 </div>
               ) : boardViewMode === "list" ? (
                 /* LIST VIEW */
-                <div className="flex flex-col gap-3 pb-14 lg:pb-4">
+                <div className="flex flex-col gap-3 pb-24 lg:pb-4">
                   {activeProjectBoards.map((board) => (
                     <WorkspaceBoardRow
                       key={board.id}
@@ -1421,7 +1421,7 @@ export function ProjectsDashboard({
                 </div>
               ) : (
                 /* GRID VIEW */
-                <div className="grid min-w-0 items-stretch gap-4 pb-14 lg:pb-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
+                <div className="grid min-w-0 items-stretch gap-4 pb-24 lg:pb-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
                   {activeProjectBoards.map((board) => (
                     <WorkspaceBoardCard
                       key={board.id}
@@ -1463,7 +1463,7 @@ export function ProjectsDashboard({
               </div>
             ) : (
               <div className="min-h-0 flex-1 overflow-y-auto pr-1 scrollbar-soft">
-                <div className="grid min-w-0 content-start gap-3.5 pb-14 lg:pb-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
+                <div className="grid min-w-0 content-start gap-3.5 pb-24 lg:pb-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
                   {displayedProjects.map((project) => (
                     <ProjectCard
                       key={project.id}
@@ -1873,8 +1873,8 @@ function WorkspaceBoardCard({
             >
               <KanbanSquare className="h-5 w-5" />
             </Link>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex min-w-0 items-center gap-2">
                 <Link
                   href={boardUrl}
                   className="truncate text-base font-bold text-stone-900 group-hover:text-indigo-600 transition-colors dark:text-stone-100 dark:group-hover:text-dusk-lavender"
@@ -2036,7 +2036,7 @@ function WorkspaceBoardRow({
           <KanbanSquare className="h-5 w-5" />
         </Link>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <Link
               href={boardUrl}
               className="truncate text-sm sm:text-base font-bold text-stone-900 group-hover:text-indigo-600 transition-colors dark:text-stone-100 dark:group-hover:text-dusk-lavender"
@@ -2683,8 +2683,8 @@ function EditProjectModal({
         contentClassName="max-w-5xl"
         hasUnsavedChanges={isDirty}
       >
-        <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl" onSubmit={handleSaveIntent}>
-          <div className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4">
+        <form className="lofi-panel flex max-h-[92dvh] sm:max-h-[calc(100dvh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl" onSubmit={handleSaveIntent}>
+          <div className="flex shrink-0 items-start justify-between gap-4 border-b border-white/10 px-5 py-4">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Project settings</p>
               <h2 id="project-settings-title" className="mt-1 text-2xl font-semibold">Edit project</h2>
@@ -2784,7 +2784,7 @@ function EditProjectModal({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 text-xs dark:border-white/10 dark:bg-white/[0.02]">
+                <div className="flex flex-wrap gap-2 items-center justify-between rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 text-xs dark:border-white/10 dark:bg-white/[0.02]">
                   <span className="text-stone-600 dark:text-stone-400">Looking for team members, coins, or custom workflows?</span>
                   <Link
                     href={`/project/${project.id}/settings`}
@@ -2798,7 +2798,7 @@ function EditProjectModal({
             </section>
           </div>
 
-          <div className="flex justify-end gap-2 border-t border-white/10 px-5 py-4">
+          <div className="flex shrink-0 justify-end gap-2 border-t border-white/10 px-5 py-4">
             <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
             <Button disabled={isSaving || !name.trim()}>{isSaving ? "Saving..." : "Save changes"}</Button>
           </div>
@@ -2876,8 +2876,8 @@ function CreateProjectModal({ onClose, onCreated }: { onClose: () => void; onCre
       labelledBy="create-project-title"
       contentClassName="max-w-lg"
     >
-      <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-2xl" onSubmit={handleSubmit}>
-        <div className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
+      <form className="lofi-panel flex max-h-[92dvh] sm:max-h-[calc(100dvh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-2xl" onSubmit={handleSubmit}>
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Workspace</p>
             <h2 id="create-project-title" className="mt-1 text-2xl font-semibold">New Project</h2>
@@ -2923,7 +2923,7 @@ function CreateProjectModal({ onClose, onCreated }: { onClose: () => void; onCre
           />
           {error ? <p className="text-sm text-theme-danger">{error}</p> : null}
         </div>
-        <div className="flex justify-end gap-2 border-t border-white/10 px-5 py-4">
+        <div className="flex shrink-0 justify-end gap-2 border-t border-white/10 px-5 py-4">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>

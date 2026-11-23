@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 import { jsonError, parseError } from "@/lib/api";
@@ -56,7 +57,7 @@ const postActionSchema = z.discriminatedUnion("action", [
   })
 ]);
 
-function calculateGrowthStage(waterCount: number): number {
+function calculateGrowthStage(waterCount: number): 1 | 2 | 3 | 4 | 5 {
   if (waterCount >= 25) return 5; // Ancient Heritage
   if (waterCount >= 12) return 4; // Blooming
   if (waterCount >= 6) return 3;  // Sapling
@@ -96,6 +97,12 @@ export async function POST(request: Request) {
   try {
     const userId = await requireUserId();
     if (!userId) return jsonError("Unauthorized.", 401);
+
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const ipAddress = forwardedFor
+      ? forwardedFor.split(",")[0].trim()
+      : (request.headers.get("x-real-ip") || null);
+    const userAgent = request.headers.get("user-agent") || null;
 
     const body = postActionSchema.parse(await request.json());
 
@@ -154,15 +161,17 @@ export async function POST(request: Request) {
         totalNourished: currentState.totalNourished + 1
       };
 
+      const updatedState = {
+        ...existingRawZenGarden,
+        ...nextState
+      };
+
       const updatedUser = await prisma.$transaction(async (tx) => {
         const u = await tx.user.update({
           where: { id: userId },
           data: {
             globalCoins: { increment: bonusCoins },
-            zenGarden: {
-              ...existingRawZenGarden,
-              ...nextState
-            }
+            zenGarden: updatedState as unknown as Prisma.InputJsonValue
           },
           select: {
             globalCoins: true,
@@ -178,6 +187,10 @@ export async function POST(request: Request) {
         actorEmail: user.email,
         actorName: user.name,
         actorRole: user.globalRole,
+        ipAddress,
+        userAgent,
+        requestPath: "/api/zen-garden",
+        requestMethod: "POST",
         category: "USER",
         action: "ZEN_GARDEN_NURTURE",
         targetType: "User",
@@ -225,13 +238,15 @@ export async function POST(request: Request) {
         activeGuardianId: plant.id
       };
 
+      const updatedState = {
+        ...existingRawZenGarden,
+        ...nextState
+      };
+
       await prisma.user.update({
         where: { id: userId },
         data: {
-          zenGarden: {
-            ...existingRawZenGarden,
-            ...nextState
-          }
+          zenGarden: updatedState as unknown as Prisma.InputJsonValue
         }
       });
 
@@ -240,6 +255,10 @@ export async function POST(request: Request) {
         actorEmail: user.email,
         actorName: user.name,
         actorRole: user.globalRole,
+        ipAddress,
+        userAgent,
+        requestPath: "/api/zen-garden",
+        requestMethod: "POST",
         category: "USER",
         action: "ZEN_GUARDIAN_SET",
         targetType: "User",
@@ -265,13 +284,15 @@ export async function POST(request: Request) {
         totalZenMinutes: currentState.totalZenMinutes + addedMinutes
       };
 
+      const updatedState = {
+        ...existingRawZenGarden,
+        ...nextState
+      };
+
       await prisma.user.update({
         where: { id: userId },
         data: {
-          zenGarden: {
-            ...existingRawZenGarden,
-            ...nextState
-          }
+          zenGarden: updatedState as unknown as Prisma.InputJsonValue
         }
       });
 
@@ -280,6 +301,10 @@ export async function POST(request: Request) {
         actorEmail: user.email,
         actorName: user.name,
         actorRole: user.globalRole,
+        ipAddress,
+        userAgent,
+        requestPath: "/api/zen-garden",
+        requestMethod: "POST",
         category: "USER",
         action: "ZEN_BREATH_COMPLETE",
         targetType: "User",
@@ -305,13 +330,15 @@ export async function POST(request: Request) {
         dewdrops: currentState.dewdrops + addedCount
       };
 
+      const updatedState = {
+        ...existingRawZenGarden,
+        ...nextState
+      };
+
       await prisma.user.update({
         where: { id: userId },
         data: {
-          zenGarden: {
-            ...existingRawZenGarden,
-            ...nextState
-          }
+          zenGarden: updatedState as unknown as Prisma.InputJsonValue
         }
       });
 
@@ -320,6 +347,10 @@ export async function POST(request: Request) {
         actorEmail: user.email,
         actorName: user.name,
         actorRole: user.globalRole,
+        ipAddress,
+        userAgent,
+        requestPath: "/api/zen-garden",
+        requestMethod: "POST",
         category: "USER",
         action: "ZEN_DEWDROP_AWARD",
         targetType: "User",
@@ -346,13 +377,15 @@ export async function POST(request: Request) {
         sunlight: currentState.sunlight + addedCount
       };
 
+      const updatedState = {
+        ...existingRawZenGarden,
+        ...nextState
+      };
+
       await prisma.user.update({
         where: { id: userId },
         data: {
-          zenGarden: {
-            ...existingRawZenGarden,
-            ...nextState
-          }
+          zenGarden: updatedState as unknown as Prisma.InputJsonValue
         }
       });
 
@@ -361,6 +394,10 @@ export async function POST(request: Request) {
         actorEmail: user.email,
         actorName: user.name,
         actorRole: user.globalRole,
+        ipAddress,
+        userAgent,
+        requestPath: "/api/zen-garden",
+        requestMethod: "POST",
         category: "USER",
         action: "ZEN_SUNLIGHT_AWARD",
         targetType: "User",
@@ -399,7 +436,7 @@ export async function POST(request: Request) {
             ...p,
             waterCount: newWaterCount,
             stage: newStage,
-            moisture: Math.min(100, p.moisture + 25)
+            moisture: Math.min(100, (p.moisture ?? 50) + 25)
           };
         }
         return p;
@@ -412,13 +449,15 @@ export async function POST(request: Request) {
         plots: updatedPlots
       };
 
+      const updatedState = {
+        ...existingRawZenGarden,
+        ...nextState
+      };
+
       await prisma.user.update({
         where: { id: userId },
         data: {
-          zenGarden: {
-            ...existingRawZenGarden,
-            ...nextState
-          }
+          zenGarden: updatedState as unknown as Prisma.InputJsonValue
         }
       });
 
@@ -427,6 +466,10 @@ export async function POST(request: Request) {
         actorEmail: user.email,
         actorName: user.name,
         actorRole: user.globalRole,
+        ipAddress,
+        userAgent,
+        requestPath: "/api/zen-garden",
+        requestMethod: "POST",
         category: "USER",
         action: "ZEN_PLOT_WATER",
         targetType: "User",
@@ -477,13 +520,15 @@ export async function POST(request: Request) {
         plots: updatedPlots
       };
 
+      const updatedState = {
+        ...existingRawZenGarden,
+        ...nextState
+      };
+
       await prisma.user.update({
         where: { id: userId },
         data: {
-          zenGarden: {
-            ...existingRawZenGarden,
-            ...nextState
-          }
+          zenGarden: updatedState as unknown as Prisma.InputJsonValue
         }
       });
 
@@ -492,6 +537,10 @@ export async function POST(request: Request) {
         actorEmail: user.email,
         actorName: user.name,
         actorRole: user.globalRole,
+        ipAddress,
+        userAgent,
+        requestPath: "/api/zen-garden",
+        requestMethod: "POST",
         category: "USER",
         action: "ZEN_PLOT_BASK",
         targetType: "User",
@@ -518,7 +567,7 @@ export async function POST(request: Request) {
             ...p,
             itemType: body.itemType,
             itemId: body.itemId,
-            stage: 1, // Start at tender Seed / Sprout stage
+            stage: 1 as const, // Start at tender Seed / Sprout stage
             waterCount: 0,
             moisture: 60,
             plantedAt: new Date().toISOString()
@@ -532,13 +581,15 @@ export async function POST(request: Request) {
         plots: updatedPlots
       };
 
+      const updatedState = {
+        ...existingRawZenGarden,
+        ...nextState
+      };
+
       await prisma.user.update({
         where: { id: userId },
         data: {
-          zenGarden: {
-            ...existingRawZenGarden,
-            ...nextState
-          }
+          zenGarden: updatedState as unknown as Prisma.InputJsonValue
         }
       });
 
@@ -547,6 +598,10 @@ export async function POST(request: Request) {
         actorEmail: user.email,
         actorName: user.name,
         actorRole: user.globalRole,
+        ipAddress,
+        userAgent,
+        requestPath: "/api/zen-garden",
+        requestMethod: "POST",
         category: "USER",
         action: "ZEN_PLOT_PLANT",
         targetType: "User",
@@ -573,7 +628,7 @@ export async function POST(request: Request) {
             slotIndex: body.slotIndex,
             itemType: "empty" as const,
             itemId: null,
-            stage: 1,
+            stage: 1 as const,
             waterCount: 0,
             moisture: 50,
             plantedAt: null
@@ -587,13 +642,15 @@ export async function POST(request: Request) {
         plots: updatedPlots
       };
 
+      const updatedState = {
+        ...existingRawZenGarden,
+        ...nextState
+      };
+
       await prisma.user.update({
         where: { id: userId },
         data: {
-          zenGarden: {
-            ...existingRawZenGarden,
-            ...nextState
-          }
+          zenGarden: updatedState as unknown as Prisma.InputJsonValue
         }
       });
 
@@ -602,6 +659,10 @@ export async function POST(request: Request) {
         actorEmail: user.email,
         actorName: user.name,
         actorRole: user.globalRole,
+        ipAddress,
+        userAgent,
+        requestPath: "/api/zen-garden",
+        requestMethod: "POST",
         category: "USER",
         action: "ZEN_PLOT_CLEAR",
         targetType: "User",

@@ -677,7 +677,7 @@ export function NotesPanel({
             </div>
           </div>
 
-          <div className="mt-3 pt-3 border-t border-white/10 shrink-0 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-2">
+          <div className="mt-3 pt-3 border-t border-white/10 shrink-0 grid grid-cols-1 gap-2">
             <div className="rounded-lg border border-white/10 bg-ink-950/35 p-2.5">
               <FilterSelect
                 label="Sort"
@@ -726,9 +726,9 @@ export function NotesPanel({
             )}
           >
             <div className="flex items-center gap-2 min-w-0">
-              <p className="text-xs uppercase tracking-[0.26em] text-dusk-amber flex items-center gap-1.5 shrink-0">
+              <p className="text-xs uppercase tracking-[0.26em] text-dusk-amber flex items-center gap-1.5 min-w-0">
                 <NotesNavIconView icon={activeViewMeta.icon} size={20} />
-                <span className="font-semibold">{activeViewMeta.label}</span>
+                <span className="font-semibold truncate">{activeViewMeta.label}</span>
               </p>
               <h3 className="hidden sm:inline text-lg font-semibold text-stone-100 truncate">Note board</h3>
 
@@ -1216,7 +1216,7 @@ function NoteCard({
             ) : note.board ? (
               <span className="inline-flex items-center gap-1 rounded-full border border-dusk-lavender/30 bg-dusk-lavender/10 px-2 py-1 text-[11px] font-medium text-dusk-lavender">
                 <FolderKanban className="h-3 w-3" />
-                {note.board.name}
+                <span className="truncate max-w-[140px]">{note.board.name}</span>
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[11px] font-medium text-stone-400">
@@ -1376,7 +1376,7 @@ function NoteEditorModal({
         hasUnsavedChanges={isDirty}
         onDiscard={onClose}
         labelledBy="note-card-title"
-        contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-5xl flex-col overflow-hidden rounded-2xl"
+        contentClassName="lofi-panel flex max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] max-w-5xl flex-col overflow-hidden rounded-2xl"
       >
         <NoteEditorModalContent
           title={title}
@@ -1485,7 +1485,7 @@ function NoteEditorModalContent({
   const currentFolder = folders.find((f) => f.id === selectedFolderId);
 
   return (
-    <form className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden" onSubmit={onSubmit}>
+    <form className="flex max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden" onSubmit={onSubmit}>
       <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4">
         <div>
           <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Note Card</p>
@@ -1501,8 +1501,8 @@ function NoteEditorModalContent({
         </button>
       </div>
 
-      <div className="grid min-h-0 flex-1 gap-0 overflow-hidden lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.8fr)]">
-        <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
+      <div className="flex flex-col lg:grid min-h-0 flex-1 gap-0 overflow-y-auto lg:overflow-hidden scrollbar-soft lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.8fr)]">
+        <div className="lg:scrollbar-soft lg:min-h-0 space-y-4 lg:overflow-y-auto p-5">
           {/* Title Section */}
           <div className="space-y-1.5">
             <label
@@ -1536,7 +1536,7 @@ function NoteEditorModalContent({
             </label>
             <Textarea
               id="panel-note-content"
-              className="min-h-[360px]"
+              className="min-h-[180px] sm:min-h-[240px] lg:min-h-[360px]"
               name="content"
               value={contentValue}
               onChange={(e) => setContentValue(e.target.value)}
@@ -1545,7 +1545,7 @@ function NoteEditorModalContent({
           </div>
         </div>
 
-        <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
+        <aside className="lg:scrollbar-soft lg:min-h-0 space-y-5 lg:overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
           {/* Live Note Card Mockup Preview */}
           {(() => {
             const noteColorMeta = getCardColorMeta(color);
@@ -1838,7 +1838,7 @@ function NoteStickerPicker({
   return (
     <div className="space-y-2 text-sm text-stone-300">
       <span>Note sticker</span>
-      <div className="grid max-h-60 grid-cols-5 gap-2 overflow-y-auto pr-1 scrollbar-soft">
+      <div className="grid max-h-60 grid-cols-4 min-[380px]:grid-cols-5 gap-2 overflow-y-auto pr-1 scrollbar-soft">
         {sharedIconOptions.map((option) => (
           <button
             key={option.id}

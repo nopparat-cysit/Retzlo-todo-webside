@@ -95,7 +95,7 @@ export function ProjectTopbarTools() {
             align="end"
             sideOffset={10}
             forceMount
-            className={cn("w-[min(390px,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-stone-200/90 dark:border-white/15 bg-[#faf7f2] dark:bg-[#0c0d18] p-2.5 shadow-[0_24px_64px_rgba(0,0,0,0.14)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.65)] text-stone-900 dark:text-stone-100 backdrop-blur-xl [&>*]:!mt-0", selectedMobileTool === "garden" && ["w-[min(420px,calc(100vw-1.5rem))]", gardenSkin.skin, gardenSkin.toolsPopover, gardenSkin.compactPopover])}
+            className={cn("w-[min(390px,calc(100vw-1.5rem))] max-h-[calc(100dvh-5rem)] overflow-y-auto overflow-x-hidden scrollbar-soft rounded-2xl border border-stone-200/90 dark:border-white/15 bg-[#faf7f2] dark:bg-[#0c0d18] p-2.5 shadow-[0_24px_64px_rgba(0,0,0,0.14)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.65)] text-stone-900 dark:text-stone-100 backdrop-blur-xl [&>*]:!mt-0", selectedMobileTool === "garden" && ["w-[min(420px,calc(100vw-1.5rem))]", gardenSkin.skin, gardenSkin.toolsPopover, gardenSkin.compactPopover])}
           >
             <div className={cn("grid grid-cols-4 gap-1 border-b border-stone-200/80 dark:border-white/10 pb-2 mb-2", selectedMobileTool === "garden" && gardenSkin.studioNavigation)}>
               {toolItems.map((t) => {
@@ -170,7 +170,7 @@ export function ProjectTopbarTools() {
                 sideOffset={10}
                 forceMount
                 className={cn(
-                  "overflow-hidden rounded-2xl border border-stone-200/90 dark:border-white/15 bg-[#faf7f2] dark:bg-[#0c0d18] p-2.5 shadow-[0_24px_64px_rgba(0,0,0,0.14)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.65)] text-stone-900 dark:text-stone-100 backdrop-blur-xl [&>*]:!mt-0",
+                  "max-h-[calc(100dvh-5rem)] overflow-y-auto overflow-x-hidden scrollbar-soft rounded-2xl border border-stone-200/90 dark:border-white/15 bg-[#faf7f2] dark:bg-[#0c0d18] p-2.5 shadow-[0_24px_64px_rgba(0,0,0,0.14)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.65)] text-stone-900 dark:text-stone-100 backdrop-blur-xl [&>*]:!mt-0",
                   tool.id === "garden" ? ["w-[420px]", gardenSkin.skin, gardenSkin.toolsPopover] : "w-80"
                 )}
               >

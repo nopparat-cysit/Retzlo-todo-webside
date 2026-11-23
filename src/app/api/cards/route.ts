@@ -11,10 +11,13 @@ import {
   canAccessBoard,
   getProjectIdForCard,
   getProjectIdForColumn,
+  isOwnerRole,
   requireUserId
 } from "@/lib/project-auth";
 import { triggerPusherEvent } from "@/lib/pusher/server";
 import { logBoardActivity } from "@/lib/kanban/activity-logger";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 import { processCardDonePayouts } from "@/lib/kanban/payout";
 import { serializeCard } from "@/lib/kanban/serialize-card";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
@@ -204,12 +207,23 @@ export async function POST(request: Request) {
       return jsonError("You do not have access to this board.", 403);
     }
 
+    let validAssigneeIds: string[] | undefined = payload.assigneeIds;
+    if (payload.assigneeIds && payload.assigneeIds.length > 0) {
+      const validMembers = await prisma.projectMember.findMany({
+        where: { projectId, userId: { in: payload.assigneeIds } },
+        select: { userId: true }
+      });
+      const validSet = new Set(validMembers.map((m) => m.userId));
+      validAssigneeIds = payload.assigneeIds.filter((uid) => validSet.has(uid));
+    }
+
     const position = await prisma.card.count({
       where: { columnId: payload.columnId }
     });
-    let privateCoins = withDifficulty(payload.privateCoins, payload.difficulty);
-    if (payload.assigneeIds !== undefined) {
-      privateCoins = withAssignees(privateCoins, payload.assigneeIds);
+    const canManageCoinRewards = isOwnerRole(membership.role) || membership.role === "ADMIN";
+    let privateCoins = withDifficulty(canManageCoinRewards ? payload.privateCoins : {}, payload.difficulty);
+    if (validAssigneeIds !== undefined) {
+      privateCoins = withAssignees(privateCoins, validAssigneeIds);
     }
     if (payload.startDate !== undefined || payload.startDateAllDay !== undefined) {
       privateCoins = withStartDate(privateCoins, payload.startDate, payload.startDateAllDay ?? false);
@@ -227,7 +241,7 @@ export async function POST(request: Request) {
         dueDateAllDay: payload.dueDateAllDay,
         priority: payload.priority,
         isStarred: payload.isStarred ?? false,
-        rewardCoins: payload.rewardCoins,
+        rewardCoins: canManageCoinRewards ? payload.rewardCoins : 0,
         privateCoins: privateCoins as any,
         stickers: payload.stickers,
         position
@@ -255,7 +269,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const newAssignees = (payload.assigneeIds || []).filter((id) => id !== userId);
+    const newAssignees = (validAssigneeIds || []).filter((id) => id !== userId);
     if (newAssignees.length > 0) {
       try {
         const creator = await prisma.user.findUnique({
@@ -284,6 +298,24 @@ export async function POST(request: Request) {
         console.error("Failed to deliver assignment notification:", notifErr);
       }
     }
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/cards",
+      requestMethod: "POST",
+      category: "CARD",
+      action: "CARD_CREATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "CARD",
+      targetId: card.id,
+      targetName: card.title,
+      summary: `Created card "${card.title}"`,
+      afterState: { id: card.id, title: card.title, status: card.status, priority: card.priority, columnId: card.columnId }
+    });
 
     return NextResponse.json({ card: serializeCard(card) }, { status: 201 });
   } catch (error) {
@@ -334,6 +366,16 @@ export async function PATCH(request: Request) {
       return jsonError("You do not have access to this board.", 403);
     }
 
+    const canManageCoinRewards = isOwnerRole(membership.role) || membership.role === "ADMIN";
+    let validAssigneeIds: string[] | undefined = payload.assigneeIds;
+    if (payload.assigneeIds && payload.assigneeIds.length > 0) {
+      const validMembers = await prisma.projectMember.findMany({
+        where: { projectId, userId: { in: payload.assigneeIds } },
+        select: { userId: true }
+      });
+      const validSet = new Set(validMembers.map((m) => m.userId));
+      validAssigneeIds = payload.assigneeIds.filter((uid) => validSet.has(uid));
+    }
     let newlyAssignedRecipients: string[] = [];
 
     const card = await prisma.$transaction(async (tx) => {
@@ -342,7 +384,7 @@ export async function PATCH(request: Request) {
       }
 
       const shouldUpdateCoins =
-        payload.privateCoins !== undefined ||
+        (canManageCoinRewards && payload.privateCoins !== undefined) ||
         payload.difficulty !== undefined ||
         payload.assigneeIds !== undefined ||
         payload.startDate !== undefined ||
@@ -392,7 +434,7 @@ export async function PATCH(request: Request) {
             ? (currentCard.privateCoins as Record<string, unknown>)
             : {};
         const incomingCoins =
-          typeof payload.privateCoins === "object" && payload.privateCoins !== null
+          canManageCoinRewards && typeof payload.privateCoins === "object" && payload.privateCoins !== null
             ? (payload.privateCoins as Record<string, unknown>)
             : {};
 
@@ -416,11 +458,11 @@ export async function PATCH(request: Request) {
         if (payload.difficulty !== undefined) {
           mergedCoins = withDifficulty(mergedCoins, payload.difficulty);
         }
-        if (payload.assigneeIds !== undefined) {
-          mergedCoins = withAssignees(mergedCoins, payload.assigneeIds);
+        if (validAssigneeIds !== undefined) {
+          mergedCoins = withAssignees(mergedCoins, validAssigneeIds);
           if (currentCard) {
             const prevAssignees = extractAssigneeIds(currentCard.privateCoins);
-            newlyAssignedRecipients = payload.assigneeIds.filter((id) => !prevAssignees.includes(id) && id !== userId);
+            newlyAssignedRecipients = validAssigneeIds.filter((id) => !prevAssignees.includes(id) && id !== userId);
           }
         }
         if (payload.startDate !== undefined || payload.startDateAllDay !== undefined) {
@@ -445,7 +487,7 @@ export async function PATCH(request: Request) {
           dueDate: payload.dueDate ? new Date(payload.dueDate) : payload.dueDate,
           dueDateAllDay: payload.dueDateAllDay,
           priority: payload.priority,
-          rewardCoins: payload.rewardCoins,
+          ...(canManageCoinRewards && payload.rewardCoins !== undefined && { rewardCoins: payload.rewardCoins }),
           ...(nextPrivateCoins !== undefined && { privateCoins: nextPrivateCoins as any }),
           stickers: payload.stickers,
           ...(payload.isStarred !== undefined && { isStarred: payload.isStarred }),
@@ -475,6 +517,24 @@ export async function PATCH(request: Request) {
         details: { cardTitle: card.title, status: card.status, priority: card.priority }
       });
     }
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/cards",
+      requestMethod: "PATCH",
+      category: "CARD",
+      action: "CARD_UPDATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "CARD",
+      targetId: card.id,
+      targetName: card.title,
+      summary: `Updated card "${card.title}"`,
+      afterState: { id: card.id, title: card.title, status: card.status, priority: card.priority }
+    });
 
     if (newlyAssignedRecipients.length > 0) {
       try {
@@ -570,25 +630,26 @@ export async function DELETE(request: Request) {
       return jsonError("You do not have access to this board.", 403);
     }
 
-    const card = await prisma.card.delete({
-      where: { id: parsedCardId.data },
-      select: {
-        title: true,
-        columnId: true,
-        column: { select: { boardId: true } }
-      }
-    });
-
-    // Atomic single-query decrement for remaining card positions
-    await prisma.card.updateMany({
-      where: {
-        columnId: existingCard.columnId,
-        position: { gt: existingCard.position }
-      },
-      data: {
-        position: { decrement: 1 }
-      }
-    });
+    const [card] = await prisma.$transaction([
+      prisma.card.delete({
+        where: { id: parsedCardId.data },
+        select: {
+          title: true,
+          columnId: true,
+          column: { select: { boardId: true } }
+        }
+      }),
+      // Atomic single-query decrement for remaining card positions
+      prisma.card.updateMany({
+        where: {
+          columnId: existingCard.columnId,
+          position: { gt: existingCard.position }
+        },
+        data: {
+          position: { decrement: 1 }
+        }
+      })
+    ]);
 
     await triggerPusherEvent(
       [`retzlo-project-${projectId}`, ...(card.column?.boardId ? [`retzlo-board-${card.column.boardId}`] : [])],
@@ -605,6 +666,23 @@ export async function DELETE(request: Request) {
         details: { cardTitle: card.title }
       });
     }
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/cards",
+      requestMethod: "DELETE",
+      category: "CARD",
+      action: "CARD_DELETED",
+      severity: "WARNING",
+      status: "SUCCESS",
+      targetType: "CARD",
+      targetId: parsedCardId.data,
+      targetName: card.title,
+      summary: `Deleted card "${card.title}"`
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

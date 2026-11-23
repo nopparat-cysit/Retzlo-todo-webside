@@ -342,7 +342,7 @@ export function RetzloHubDiagram({ isEn }: { isEn: boolean }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 text-[11px] text-stone-500 dark:text-stone-400">
+          <div className="flex flex-wrap items-center gap-3 gap-y-1 text-[11px] text-stone-500 dark:text-stone-400">
             <span>{isEn ? "Role:" : "บทบาท:"} <strong className="text-stone-800 dark:text-stone-200">{activeNodeInfo.role}</strong></span>
             <span>•</span>
             <span>{isEn ? "Scope:" : "ขอบเขต:"} <strong className="text-indigo-600 dark:text-dusk-lavender">{activeNodeInfo.scope}</strong></span>

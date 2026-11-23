@@ -126,7 +126,7 @@ export function UserInspectorDrawer({
         </div>
 
         {/* Drawer Body */}
-        <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
+        <div className="flex-1 min-h-0 space-y-6 overflow-y-auto px-6 py-6">
           {/* User Profile Card */}
           <div className="flex items-start gap-4 rounded-xl border border-stone-200/80 bg-stone-50/80 p-4 dark:border-white/10 dark:bg-white/5">
             <Avatar
@@ -253,7 +253,7 @@ export function UserInspectorDrawer({
               </span>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={() => setStatus("ONLINE")}
@@ -419,7 +419,7 @@ export function UserInspectorDrawer({
 
         {/* Drawer Footer Actions */}
         <div className="border-t border-stone-200 px-6 py-4 dark:border-white/10">
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
               Cancel
             </Button>

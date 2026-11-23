@@ -54,7 +54,7 @@ export function WorkspacesTab({
       {/* Workspaces Data Table */}
       <div className="overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#0c0d18]">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[740px] text-left text-xs">
             <thead className="border-b border-stone-200/80 bg-stone-50/80 font-mono text-[11px] uppercase tracking-wider text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
               <tr>
                 <th className="px-4 py-3 font-semibold">Workspace</th>

@@ -5,6 +5,8 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { requireUserId } from "@/lib/project-auth";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required."),
@@ -23,7 +25,7 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, password: true },
+      select: { id: true, email: true, name: true, password: true },
     });
 
     if (!user) return jsonError("User not found.", 404);
@@ -36,6 +38,24 @@ export async function POST(request: Request) {
     await prisma.user.update({
       where: { id: userId },
       data: { password: hashed },
+    });
+
+    void createAuditLog({
+      actorId: userId,
+      actorEmail: user.email,
+      actorName: user.name,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/profile/password",
+      requestMethod: "POST",
+      category: "AUTH",
+      action: "PASSWORD_CHANGED",
+      severity: "NOTICE",
+      status: "SUCCESS",
+      targetType: "USER",
+      targetId: userId,
+      targetName: user.email,
+      summary: `User ${user.email} changed their account password.`
     });
 
     return NextResponse.json({ success: true });

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { jsonError, parseError } from "@/lib/api";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { queryAuditLogs, createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -22,9 +23,14 @@ export async function GET(request: Request) {
     const targetType = searchParams.get("targetType") || undefined;
     const startDate = searchParams.get("startDate") || undefined;
     const endDate = searchParams.get("endDate") || undefined;
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "25", 10);
+    const rawPage = parseInt(searchParams.get("page") || "1", 10);
+    const page = Math.max(1, Number.isNaN(rawPage) ? 1 : rawPage);
+    const rawLimit = parseInt(searchParams.get("limit") || "25", 10);
+    const limit = Math.min(100, Math.max(1, Number.isNaN(rawLimit) ? 25 : rawLimit));
     const exportFormat = searchParams.get("export");
+
+    const ipAddress = getClientIp(request);
+    const userAgent = request.headers.get("user-agent") || null;
 
     const result = await queryAuditLogs({
       search,
@@ -46,6 +52,10 @@ export async function GET(request: Request) {
         actorEmail: admin.email,
         actorName: admin.name,
         actorRole: admin.globalRole,
+        ipAddress,
+        userAgent,
+        requestPath: "/api/admin/audit-logs",
+        requestMethod: "GET",
         category: "SYSTEM",
         action: "AUDIT_LOG_EXPORTED_CSV",
         severity: "NOTICE",
@@ -84,6 +94,10 @@ export async function GET(request: Request) {
         actorEmail: admin.email,
         actorName: admin.name,
         actorRole: admin.globalRole,
+        ipAddress,
+        userAgent,
+        requestPath: "/api/admin/audit-logs",
+        requestMethod: "GET",
         category: "SYSTEM",
         action: "AUDIT_LOG_EXPORTED_JSON",
         severity: "NOTICE",

@@ -5,6 +5,8 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/project-auth";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 const invitationTokenSchema = z.object({
   token: z.string().min(12)
@@ -127,6 +129,26 @@ export async function POST(request: Request) {
       { action: "MEMBER_JOINED", projectId: invitation.projectId, userId, senderId: userId }
     );
 
+    void createAuditLog({
+      actorId: userId,
+      actorEmail: invitedUser.email,
+      actorName: invitedUser.name,
+      actorRole: "MEMBER",
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/auth/accept-invitation",
+      requestMethod: "POST",
+      category: "PROJECT",
+      action: "INVITATION_ACCEPTED",
+      severity: "NOTICE",
+      status: "SUCCESS",
+      targetType: "PROJECT",
+      targetId: invitation.projectId,
+      targetName: invitation.project.name,
+      summary: `User ${invitedUser.email} accepted invitation to project "${invitation.project.name}".`,
+      metadata: { invitationId: invitation.id, projectId: invitation.projectId }
+    });
+
     return NextResponse.json({
       accepted: true,
       projectId: invitation.projectId,
@@ -140,13 +162,27 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const userId = await requireUserId();
+    if (!userId) {
+      return jsonError("Authentication required", 401);
+    }
+
     const payload = invitationTokenSchema.parse(await request.json());
-    const invitation = await prisma.invitation.findUnique({
-      where: { token: payload.token }
-    });
+    const [invitation, currentUser] = await Promise.all([
+      prisma.invitation.findUnique({
+        where: { token: payload.token }
+      }),
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true }
+      })
+    ]);
 
     if (!invitation) {
       return jsonError("Invitation not found.", 404);
+    }
+
+    if (!currentUser || currentUser.email.toLowerCase() !== invitation.email.toLowerCase()) {
+      return jsonError("You are not authorized to decline this invitation.", 403);
     }
 
     await prisma.$transaction([
@@ -154,20 +190,33 @@ export async function DELETE(request: Request) {
         where: { id: invitation.id },
         data: { status: "DECLINED" }
       }),
-      ...(userId
-        ? [
-            prisma.notification.updateMany({
-              where: {
-                userId,
-                projectId: invitation.projectId,
-                type: "PROJECT_INVITATION",
-                isRead: false
-              },
-              data: { isRead: true }
-            })
-          ]
-        : [])
+      prisma.notification.updateMany({
+        where: {
+          userId,
+          projectId: invitation.projectId,
+          type: "PROJECT_INVITATION",
+          isRead: false
+        },
+        data: { isRead: true }
+      })
     ]);
+
+    void createAuditLog({
+      actorId: userId,
+      actorEmail: currentUser.email,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/auth/accept-invitation",
+      requestMethod: "DELETE",
+      category: "PROJECT",
+      action: "INVITATION_DECLINED",
+      severity: "NOTICE",
+      status: "SUCCESS",
+      targetType: "PROJECT",
+      targetId: invitation.projectId,
+      summary: `User ${currentUser.email} declined invitation to project ${invitation.projectId}.`,
+      metadata: { invitationId: invitation.id, projectId: invitation.projectId }
+    });
 
     return NextResponse.json({
       declined: true

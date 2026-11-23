@@ -102,8 +102,8 @@ export function AuditDetailDrawer({ log, isOpen, onClose }: AuditDetailDrawerPro
       {/* Slide-over Drawer Panel */}
       <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col bg-white shadow-2xl transition-all dark:bg-[#0c0d18] dark:border-l dark:border-white/10 sm:max-w-2xl">
         {/* Drawer Header */}
-        <div className="flex items-start justify-between border-b border-theme-border/60 px-6 py-4 dark:border-white/10">
-          <div className="space-y-1.5 pr-4">
+        <div className="flex items-start justify-between gap-2 border-b border-theme-border/60 px-6 py-4 dark:border-white/10">
+          <div className="min-w-0 flex-1 space-y-1.5 pr-4">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="muted" className="font-mono text-[11px] font-bold">
                 AUDIT LOG
@@ -132,7 +132,7 @@ export function AuditDetailDrawer({ log, isOpen, onClose }: AuditDetailDrawerPro
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="h-8 w-8 p-0 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
+            className="h-8 w-8 shrink-0 p-0 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
             aria-label="Close drawer"
           >
             <X className="h-5 w-5" />
@@ -140,7 +140,7 @@ export function AuditDetailDrawer({ log, isOpen, onClose }: AuditDetailDrawerPro
         </div>
 
         {/* Drawer Body */}
-        <div className="flex-1 space-y-5 overflow-y-auto px-6 py-6 font-sans">
+        <div className="flex-1 min-h-0 space-y-5 overflow-y-auto px-6 py-6 font-sans">
           {/* Summary Box with Global Panel */}
           <Panel className="p-4">
             <div className="flex items-center gap-2 text-xs font-semibold text-stone-500 dark:text-stone-400 mb-1.5">
@@ -154,14 +154,14 @@ export function AuditDetailDrawer({ log, isOpen, onClose }: AuditDetailDrawerPro
 
           {/* Timestamp & Legal Metadata Notice with Global Panel & Badge */}
           <Panel className="p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div className="flex items-center gap-2 text-stone-600 dark:text-stone-300">
-              <Clock className="h-4 w-4 text-stone-400" />
+            <div className="flex flex-wrap items-center gap-2 text-stone-600 dark:text-stone-300">
+              <Clock className="h-4 w-4 shrink-0 text-stone-400" />
               <span className="font-mono">{new Date(log.timestamp).toLocaleString()}</span>
               <span className="text-[10px] text-stone-400">
                 ({new Date(log.timestamp).toISOString()})
               </span>
             </div>
-            <Badge variant="cyan" className="font-mono text-[11px] gap-1">
+            <Badge variant="cyan" className="shrink-0 font-mono text-[11px] gap-1">
               <Lock className="h-3 w-3" />
               <span>PDPA Sec 24(5) & CCA Sec 26 Compliant</span>
             </Badge>
@@ -268,7 +268,7 @@ export function AuditDetailDrawer({ log, isOpen, onClose }: AuditDetailDrawerPro
 
           {/* Before vs After State Structural Diff */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400 flex items-center gap-2">
                 <Terminal className="h-4 w-4 text-indigo-500" />
                 State Mutation Diff (Audit Trail)

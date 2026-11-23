@@ -4,6 +4,8 @@ import { z } from "zod";
 import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/project-auth";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 const updateProfileSchema = z.object({
   name: z.string().trim().max(80).optional(),
@@ -73,6 +75,25 @@ export async function PATCH(request: Request) {
         status: true,
         globalCoins: true,
       },
+    });
+
+    void createAuditLog({
+      actorId: userId,
+      actorEmail: user.email,
+      actorName: user.name,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/profile",
+      requestMethod: "PATCH",
+      category: "USER",
+      action: "PROFILE_UPDATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "USER",
+      targetId: userId,
+      targetName: user.name ?? user.email,
+      summary: `Updated profile for ${user.email}`,
+      afterState: { id: user.id, name: user.name, status: user.status }
     });
 
     return NextResponse.json({ user });

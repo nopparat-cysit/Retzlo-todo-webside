@@ -10,6 +10,8 @@ import {
   requireUserId
 } from "@/lib/project-auth";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export async function PATCH(request: Request, { params }: { params: { folderId: string } }) {
   try {
@@ -66,13 +68,31 @@ export async function PATCH(request: Request, { params }: { params: { folderId: 
       { action: "NOTE_FOLDER_UPDATED", folderId: folder.id, senderId: userId }
     );
 
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/note-folders/${params.folderId}`,
+      requestMethod: "PATCH",
+      category: "PROJECT",
+      action: "NOTE_FOLDER_UPDATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "NOTE_FOLDER",
+      targetId: folder.id,
+      targetName: folder.name,
+      summary: `Updated note folder "${folder.name}"`,
+      afterState: { id: folder.id, name: folder.name, color: folder.color, icon: folder.icon }
+    });
+
     return NextResponse.json({ folder });
   } catch (error) {
     return parseError(error);
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: { folderId: string } }) {
+export async function DELETE(request: Request, { params }: { params: { folderId: string } }) {
   try {
     const userId = await requireUserId();
 
@@ -94,7 +114,7 @@ export async function DELETE(_request: Request, { params }: { params: { folderId
 
     const existingFolder = await prisma.noteFolder.findUnique({
       where: { id: params.folderId },
-      select: { authorId: true }
+      select: { authorId: true, name: true }
     });
 
     if (!existingFolder) {
@@ -114,6 +134,23 @@ export async function DELETE(_request: Request, { params }: { params: { folderId
       "retzlo:sync",
       { action: "NOTE_FOLDER_DELETED", folderId: params.folderId, senderId: userId }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/note-folders/${params.folderId}`,
+      requestMethod: "DELETE",
+      category: "PROJECT",
+      action: "NOTE_FOLDER_DELETED",
+      severity: "WARNING",
+      status: "SUCCESS",
+      targetType: "NOTE_FOLDER",
+      targetId: params.folderId,
+      targetName: existingFolder.name,
+      summary: `Deleted note folder "${existingFolder.name}"`
+    });
 
     return NextResponse.json({ success: true, folderId: params.folderId });
   } catch (error) {

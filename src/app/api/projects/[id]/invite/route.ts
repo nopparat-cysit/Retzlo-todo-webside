@@ -6,7 +6,8 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
 import { sendProjectInvitationEmail } from "@/lib/mail";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { createAuditLog } from "@/lib/audit/audit-logger";
 
 const inviteSchema = z.object({
   email: z.string().email()
@@ -91,7 +92,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     }
 
     // Build absolute URL for the email
-    const origin = request.headers.get("origin") || process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const origin = process.env.NEXTAUTH_URL || request.headers.get("origin") || "http://localhost:3000";
     const acceptPath = `/accept-invitation?token=${token}`;
     const fullAcceptUrl = `${origin}${acceptPath}`;
 
@@ -106,6 +107,26 @@ export async function POST(request: Request, { params }: { params: { id: string 
     } catch (mailError) {
       console.warn("[MAIL] Could not send invitation email:", mailError);
     }
+
+    void createAuditLog({
+      actorId: userId,
+      actorEmail: inviter?.email,
+      actorName: inviter?.name,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/projects/${params.id}/invite`,
+      requestMethod: "POST",
+      category: "PROJECT",
+      action: "PROJECT_INVITATION_SENT",
+      severity: "NOTICE",
+      status: "SUCCESS",
+      targetType: "PROJECT",
+      targetId: params.id,
+      targetName: project?.name ?? params.id,
+      summary: `Sent project invitation for "${project?.name ?? params.id}" to ${email}.`,
+      metadata: { invitationId: invitation.id, projectId: params.id, invitedEmail: email }
+    });
 
     return NextResponse.json(
       {
@@ -140,6 +161,23 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
     await prisma.invitation.deleteMany({
       where: { id: invitationId, projectId: params.id }
+    });
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/projects/${params.id}/invite`,
+      requestMethod: "DELETE",
+      category: "PROJECT",
+      action: "PROJECT_INVITATION_CANCELLED",
+      severity: "NOTICE",
+      status: "SUCCESS",
+      targetType: "PROJECT",
+      targetId: params.id,
+      summary: `Cancelled project invitation ${invitationId} in project ${params.id}.`,
+      metadata: { invitationId, projectId: params.id }
     });
 
     return NextResponse.json({ ok: true });

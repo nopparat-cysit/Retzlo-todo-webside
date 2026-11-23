@@ -91,7 +91,7 @@ export function ConfirmModal({
         />
 
         <div
-          className="lofi-panel relative w-full max-w-md rounded-xl p-6 shadow-2xl"
+          className="lofi-panel relative w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl p-6 shadow-2xl"
           onPointerDown={() => {
             isBackdropPointerDownRef.current = false;
           }}
@@ -154,7 +154,7 @@ export function ConfirmModal({
         )}
 
         {/* Actions */}
-        <div className="mt-6 flex justify-end gap-2">
+        <div className="mt-6 flex flex-wrap justify-end gap-2">
           <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
             {cancelLabel}
           </Button>

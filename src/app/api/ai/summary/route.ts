@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { assertProjectMember, canAccessBoard, requireUserId } from "@/lib/project-auth";
 import { AI_CREDIT_COSTS, deductUserAiCredit, getUserAiQuota } from "@/lib/ai/credits";
 import { generateProjectSummary } from "@/lib/ai/engine";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -41,6 +43,7 @@ export async function POST(request: Request) {
     }
 
     let boardName = "Overview";
+    let accessibleBoardIds: string[] = [];
     if (payload.boardId) {
       const board = await prisma.board.findUnique({
         where: { id: payload.boardId },
@@ -59,6 +62,19 @@ export async function POST(request: Request) {
         return jsonError("You do not have permission to access this private board", 403);
       }
       boardName = board.name;
+      accessibleBoardIds = [board.id];
+    } else {
+      const projectBoards = await prisma.board.findMany({
+        where: { projectId: payload.projectId },
+        select: {
+          id: true,
+          isPrivate: true,
+          members: { select: { userId: true } }
+        }
+      });
+      accessibleBoardIds = projectBoards
+        .filter((b) => canAccessBoard(b, userId, membership.role))
+        .map((b) => b.id);
     }
 
     // 1. Verify quota before expensive AI analysis
@@ -72,7 +88,7 @@ export async function POST(request: Request) {
       where: {
         column: payload.boardId
           ? { boardId: payload.boardId }
-          : { board: { projectId: payload.projectId } }
+          : { boardId: { in: accessibleBoardIds } }
       },
       select: {
         id: true,
@@ -126,6 +142,24 @@ export async function POST(request: Request) {
       AI_CREDIT_COSTS.SUMMARY,
       "SUMMARY"
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/ai/summary",
+      requestMethod: "POST",
+      category: "AI",
+      action: "AI_PROJECT_SUMMARY",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "PROJECT",
+      targetId: project.id,
+      targetName: project.name,
+      summary: `Generated AI summary for project "${project.name}"`,
+      metadata: { projectId: project.id, boardId: payload.boardId ?? null, totalCards: cards.length, remainingCredits: creditResult.remainingCredits }
+    });
 
     return NextResponse.json({
       ok: true,

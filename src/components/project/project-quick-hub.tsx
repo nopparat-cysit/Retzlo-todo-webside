@@ -34,7 +34,7 @@ export function ProjectQuickHub({
 
   return (
     <>
-      <div className="fixed bottom-5 right-5 z-[130]">
+      <div className="fixed bottom-24 right-4 z-[130] lg:bottom-5 lg:right-5">
         {isOpen ? (
           <div className="mb-3 w-48 overflow-hidden rounded-2xl border border-white/15 bg-[#020208] p-2 shadow-[0_22px_58px_rgba(0,0,0,0.78),inset_0_1px_0_rgba(255,255,255,0.05)]">
             <button
@@ -146,8 +146,8 @@ function QuickCreateModal({
       labelledBy="project-quick-create-title"
       contentClassName={cn("max-w-xl", isDiary && "max-w-4xl")}
     >
-      <form className={cn("lofi-panel flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden rounded-lg p-5", isDiary ? "max-w-4xl" : "max-w-xl")} onSubmit={handleSubmit}>
-        <div className="mb-5 flex items-center justify-between gap-3">
+      <form className={cn("lofi-panel flex max-h-[92dvh] sm:max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-lg p-4 sm:p-5", isDiary ? "max-w-4xl" : "max-w-xl")} onSubmit={handleSubmit}>
+        <div className="mb-5 flex shrink-0 items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">{isDiary ? "Recurring Diary" : "Project Note"}</p>
             <h2 id="project-quick-create-title" className="mt-1 text-2xl font-semibold">{isDiary ? "Add diary list" : "Add note"}</h2>
@@ -173,7 +173,7 @@ function QuickCreateModal({
             </button>
           </div>
         </div>
-        <div className={cn("grid min-h-0 flex-1 gap-4 overflow-hidden", isDiary && isSettingsOpen && "lg:grid-cols-[minmax(0,1fr)_18rem]")}>
+        <div className={cn("grid min-h-0 flex-1 gap-4 overflow-y-auto scrollbar-soft pr-1", isDiary && isSettingsOpen && "lg:grid-cols-[minmax(0,1fr)_18rem]")}>
           <section className={cn("space-y-4", isDiary && "flex min-h-0 flex-col")}>
             {isDiary ? <p className="text-xs uppercase tracking-[0.2em] text-dusk-lavender">Details</p> : null}
             <Input name="title" placeholder={isDiary ? "Diary title" : "Note title"} required />
@@ -211,7 +211,7 @@ function QuickCreateModal({
           ) : null}
           {error ? <p className="text-sm text-theme-danger">{error}</p> : null}
         </div>
-        <div className="mt-5 flex justify-end gap-2">
+        <div className="mt-5 flex shrink-0 justify-end gap-2">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>

@@ -75,7 +75,7 @@ export function UserProfilePopover({
         align={align}
         side={side}
         sideOffset={variant === "avatar" ? 8 : 12}
-        className="w-72 overflow-hidden rounded-2xl border border-stone-200/90 bg-white/95 p-0 shadow-2xl backdrop-blur-xl dark:border-white/15 dark:bg-[#020208] dark:shadow-[0_24px_64px_rgba(0,0,0,0.58),inset_0_1px_0_rgba(255,255,255,0.05)]"
+        className="w-72 max-w-[calc(100vw-1.5rem)] max-h-[min(calc(100dvh-2rem),var(--radix-dropdown-menu-content-available-height))] overflow-y-auto rounded-2xl border border-stone-200/90 bg-white/95 p-0 shadow-2xl backdrop-blur-xl dark:border-white/15 dark:bg-[#020208] dark:shadow-[0_24px_64px_rgba(0,0,0,0.58),inset_0_1px_0_rgba(255,255,255,0.05)]"
       >
         <div className="h-16 bg-[radial-gradient(circle_at_18%_20%,rgba(229,189,114,0.22),transparent_34%),radial-gradient(circle_at_82%_22%,rgba(213,154,179,0.22),transparent_32%),linear-gradient(135deg,rgba(35,31,68,0.9),rgba(63,46,86,0.82))]" />
         <div className="px-4 pb-4">

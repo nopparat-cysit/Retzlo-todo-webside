@@ -3,8 +3,10 @@ import { z } from "zod";
 
 import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
-import { assertProjectMember, getProjectIdForBoard, requireUserId } from "@/lib/project-auth";
+import { assertProjectMember, canAccessBoard, requireUserId } from "@/lib/project-auth";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 const reorderColumnsSchema = z.object({
   boardId: z.string().uuid(),
@@ -20,16 +22,29 @@ export async function PATCH(request: Request) {
     }
 
     const payload = reorderColumnsSchema.parse(await request.json());
-    const projectId = await getProjectIdForBoard(payload.boardId);
+    const board = await prisma.board.findUnique({
+      where: { id: payload.boardId },
+      select: {
+        id: true,
+        projectId: true,
+        isPrivate: true,
+        members: { select: { userId: true } }
+      }
+    });
 
-    if (!projectId) {
+    if (!board) {
       return jsonError("Board not found.", 404);
     }
 
+    const projectId = board.projectId;
     const membership = await assertProjectMember(projectId, userId);
 
     if (!membership) {
       return jsonError("You do not have access to this project.", 403);
+    }
+
+    if (!canAccessBoard(board, userId, membership.role)) {
+      return jsonError("You do not have access to this private board.", 403);
     }
 
     await prisma.$transaction(
@@ -46,6 +61,23 @@ export async function PATCH(request: Request) {
       "retzlo:sync",
       { action: "COLUMN_REORDER", boardId: payload.boardId, senderId: userId }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/columns/reorder",
+      requestMethod: "PATCH",
+      category: "BOARD",
+      action: "COLUMNS_REORDERED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "BOARD",
+      targetId: payload.boardId,
+      summary: `Reordered columns in board ${payload.boardId}`,
+      metadata: { columnIds: payload.columnIds }
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

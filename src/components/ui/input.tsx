@@ -73,7 +73,7 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
         <button
           type="button"
           tabIndex={-1}
-          className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-md text-dusk-amber/80 transition hover:bg-dusk-amber/10 hover:text-dusk-amber"
+          className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-md text-theme-muted transition hover:bg-theme-paper hover:text-theme-foreground"
           aria-label={isTimeLike ? "Open time picker" : "Open date picker"}
           onClick={() => openNativePicker(inputRef.current)}
         >

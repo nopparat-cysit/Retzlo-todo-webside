@@ -56,7 +56,7 @@ export function UsersTab({
   return (
     <div className="space-y-4">
       {/* Controls Bar: Search & Filters */}
-      <Panel className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <Panel className="p-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
           <Input
@@ -103,7 +103,7 @@ export function UsersTab({
       {/* Users Data Table */}
       <div className="overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#0c0d18]">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[760px] text-left text-xs">
             <thead className="border-b border-stone-200/80 bg-stone-50/80 font-mono text-[11px] uppercase tracking-wider text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
               <tr>
                 <th className="px-4 py-3 font-semibold">User / Identity</th>

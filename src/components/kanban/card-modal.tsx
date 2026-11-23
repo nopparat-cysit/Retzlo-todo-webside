@@ -884,7 +884,7 @@ export function CardModal({
           </div>
         )}
         <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(18rem,2fr)] lg:items-start">
-          <div className="grid gap-4">
+          <div className="grid min-w-0 gap-4">
           <div className="space-y-1.5">
             <label htmlFor="card-title" className="text-sm font-medium text-stone-600 dark:text-stone-300">Card title</label>
             <Input id="card-title" name="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Card title" required />
@@ -967,7 +967,7 @@ export function CardModal({
             </div>
           </div>
           <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
-            <div className="mb-3 flex items-center justify-between text-sm font-medium text-stone-200">
+            <div className="mb-3 flex flex-wrap gap-2 items-center justify-between text-sm font-medium text-stone-200">
               <div className="flex items-center gap-2">
                 <CheckSquare className="h-4 w-4 text-dusk-cyan" />
                 <span>Checklist</span>
@@ -1042,7 +1042,7 @@ export function CardModal({
           ) : null}
           </div>
 
-          <div className="grid gap-4 lg:sticky lg:top-0">
+          <div className="grid min-w-0 gap-4 lg:sticky lg:top-0">
           <div className="space-y-2 text-sm text-stone-300 hidden lg:block">
             <div className="flex items-center justify-between">
               <span className="font-semibold text-stone-300">Status</span>
@@ -1143,7 +1143,7 @@ export function CardModal({
               </button>
             </div>
 
-            <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 sm:gap-2">
+            <div className="grid grid-cols-4 sm:grid-cols-7 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-1.5 sm:gap-2">
               <button
                 type="button"
                 className={cn(

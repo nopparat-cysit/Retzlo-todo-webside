@@ -1170,7 +1170,7 @@ export function KanbanBoard({
         {/* Always-Visible Compact Header Row */}
         <div className="flex items-center justify-between gap-2 min-w-0">
           {/* Left: Channel, Board Name, Inline Renaming, Focus mode, Active Filters indicator when collapsed */}
-          <div className="min-w-0 flex-1 flex items-center gap-1.5 sm:gap-2">
+          <div className="min-w-0 flex-1 flex flex-wrap items-center gap-1.5 sm:gap-2">
             <span className="hidden min-[360px]:inline-block text-[10px] uppercase tracking-[0.2em] text-dusk-amber font-semibold select-none rounded bg-dusk-amber/10 px-1.5 py-0.5 border border-dusk-amber/20 shrink-0">
               Channel
             </span>
@@ -1548,7 +1548,7 @@ export function KanbanBoard({
               </div>
 
               {/* Action Toolbar: AI Summary, Notes, Export & More Actions */}
-              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0">
                 {/* Mobile Filter Toggle Button */}
                 <button
                   type="button"
@@ -1692,8 +1692,8 @@ export function KanbanBoard({
             </div>
 
             {/* Bottom Row: Filters, Search, Sort & Actions */}
-            <div className="pt-1.5 border-t border-stone-200/60 dark:border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+            <div className="pt-1.5 border-t border-stone-200/60 dark:border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2 sm:flex-wrap">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
                 {/* Mobile Row 1: Search & Add Column */}
                 <div className="flex items-center gap-2">
                   {/* Live Search */}
@@ -1733,7 +1733,7 @@ export function KanbanBoard({
                 {/* Filter Strip: collapsible panel on mobile, inline on desktop */}
                 <div
                   className={cn(
-                    "items-center gap-1.5 pt-1.5 sm:pt-0 border-t border-stone-200/50 sm:border-0 dark:border-white/5 flex-wrap sm:flex-nowrap",
+                    "items-center gap-1.5 pt-1.5 sm:pt-0 border-t border-stone-200/50 sm:border-0 dark:border-white/5 flex-wrap",
                     isMobileFiltersOpen || activeFilterCount > 0 ? "flex" : "hidden sm:flex"
                   )}
                 >
@@ -2617,7 +2617,7 @@ function KanbanCardDragPreview({ card }: { card: Card }) {
   const colorMeta = getCardColorMeta(card.color);
 
   return (
-    <article className={cn("pointer-events-none w-72 rotate-1 rounded-xl border p-3 text-sm shadow-2xl shadow-dusk-lavender/30 ring-2 ring-dusk-lavender/30", colorMeta.cardClass)}>
+    <article className={cn("pointer-events-none w-72 max-w-[calc(100vw-2rem)] rotate-1 rounded-xl border p-3 text-sm shadow-2xl shadow-dusk-lavender/30 ring-2 ring-dusk-lavender/30", colorMeta.cardClass)}>
       <div className="space-y-2">
         <p className="font-semibold text-stone-900 dark:text-stone-100">{card.title}</p>
         <div className="flex flex-wrap gap-2">

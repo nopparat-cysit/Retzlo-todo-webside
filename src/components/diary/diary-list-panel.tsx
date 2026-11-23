@@ -311,7 +311,7 @@ export function DiaryListPanel({
             <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1">
               <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.24em] text-dusk-amber font-semibold shrink-0">
                 <BookOpenCheck className="h-3.5 w-3.5" />
-                <span className="hidden xs:inline">Diary</span>
+                <span className="hidden min-[420px]:inline">Diary</span>
               </div>
 
               <h2 className="hidden min-[520px]:inline text-base sm:text-lg font-bold leading-tight text-theme-foreground dark:text-stone-100 truncate">
@@ -1167,8 +1167,8 @@ function DiaryFocusCard({
           <div className="order-1 flex min-h-0 flex-col gap-4 rounded-2xl border border-white/10 bg-ink-950/40 p-4 sm:p-5 xl:order-1">
             {/* Checklist Header & Progress */}
             <div className="border-b border-white/8 pb-4">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+                <div className="flex items-center gap-2 min-w-0">
                   <div className="grid h-8 w-8 place-items-center rounded-lg border border-dusk-cyan/25 bg-dusk-cyan/10 text-dusk-cyan">
                     <CheckSquare className="h-4 w-4" />
                   </div>
@@ -1195,11 +1195,11 @@ function DiaryFocusCard({
                     <span className="hidden sm:inline">{isChecklistDetailsHidden ? "Show details" : "Hide details"}</span>
                   </button>
                   {dueItems.length > 0 ? (
-                    <span className="inline-flex h-8 items-center rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-3 text-xs font-medium text-dusk-cyan">
+                    <span className="inline-flex h-8 shrink-0 whitespace-nowrap items-center rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-3 text-xs font-medium text-dusk-cyan">
                       {completedDueCount}/{dueItems.length} completed ({progressPercent}%)
                     </span>
                   ) : (
-                    <span className="inline-flex h-8 items-center rounded-full border border-white/10 bg-white/5 px-3 text-xs font-medium text-stone-400">
+                    <span className="inline-flex h-8 shrink-0 whitespace-nowrap items-center rounded-full border border-white/10 bg-white/5 px-3 text-xs font-medium text-stone-400">
                       {sortedChecklist.length} steps
                     </span>
                   )}
@@ -1333,7 +1333,7 @@ function DiaryFocusCard({
             {/* Quick Add Inline Step */}
             {item.canManage ? (
               <form className="mt-2 flex items-center gap-2 border-t border-white/8 pt-3" onSubmit={handleAddStep}>
-                <div className="relative flex-1">
+                <div className="relative min-w-0 flex-1">
                   <Plus className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
                   <Input
                     className="h-10 pl-9 pr-3 text-sm bg-ink-950/60 border-white/10 placeholder:text-stone-500"
@@ -1694,7 +1694,7 @@ function DiaryItemModal({
       labelledBy="diary-item-modal-title"
       contentClassName="max-w-5xl"
     >
-        <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-lg p-5" onSubmit={handleSubmit}>
+        <form className="lofi-panel flex max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-lg p-5" onSubmit={handleSubmit}>
           <div className="mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-4">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Recurring Diary</p>
@@ -1714,9 +1714,9 @@ function DiaryItemModal({
           </div>
 
           {/* 2-Column Layout: Left = Details, Settings & Coins | Right = Checklist Studio */}
-          <div className="grid min-h-0 flex-1 gap-6 overflow-hidden lg:grid-cols-[380px_minmax(0,1fr)]">
+          <div className="flex flex-col lg:grid min-h-0 flex-1 gap-6 overflow-y-auto lg:overflow-hidden scrollbar-soft lg:grid-cols-[380px_minmax(0,1fr)]">
             {/* Left Column: Details, Settings & Coins Reward */}
-            <div className="flex min-h-0 flex-col gap-4 overflow-y-auto pr-1 scrollbar-soft">
+            <div className="flex flex-col gap-4 lg:min-h-0 lg:overflow-y-auto pr-1 lg:scrollbar-soft">
               {/* Live Diary Routine Card Mockup Preview */}
               {(() => {
                 const colorMeta = getCardColorMeta(color);
@@ -1894,7 +1894,7 @@ function DiaryItemModal({
             </div>
 
             {/* Right Column: Checklist Studio */}
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div className="flex flex-col lg:min-h-0 lg:flex-1 lg:overflow-hidden">
               <DiaryChecklistEditor
                 defaultRepeatDays={intervalDays}
                 defaultRepeatUnit={repeatUnit}

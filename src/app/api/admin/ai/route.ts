@@ -6,6 +6,8 @@ import { requireAdminUser } from "@/lib/admin-auth";
 import { AI_CREDIT_COSTS, AI_TIER_LIMITS, setAdminUserAiQuota } from "@/lib/ai/credits";
 import { prisma } from "@/lib/prisma";
 import { recordAdminAudit } from "@/lib/admin-system-state";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -96,6 +98,29 @@ export async function POST(request: Request) {
       details: {
         tier: payload.tier,
         creditsGranted: payload.credits
+      }
+    });
+
+    void createAuditLog({
+      actorId: admin.id,
+      actorEmail: admin.email,
+      actorName: admin.name,
+      actorRole: admin.globalRole,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/admin/ai",
+      requestMethod: "POST",
+      category: "AI",
+      action: "AI_QUOTA_UPDATED",
+      severity: "NOTICE",
+      status: "SUCCESS",
+      targetType: "USER",
+      targetId: payload.userId,
+      targetName: targetUser.email,
+      summary: `Admin ${admin.email} updated AI quota for ${targetUser.email} to ${payload.credits} credits (${updatedQuota.tier} tier).`,
+      metadata: {
+        tier: updatedQuota.tier,
+        credits: payload.credits
       }
     });
 

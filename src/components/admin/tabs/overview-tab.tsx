@@ -108,7 +108,7 @@ export function OverviewTab({
       </div>
 
       {/* Primary Key Metrics Grid */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6">
         <div
           onClick={() => onNavigateTab("users")}
           className="group cursor-pointer rounded-xl border border-stone-200/80 bg-white p-4 transition-all hover:border-indigo-500/50 hover:shadow-md dark:border-white/10 dark:bg-[#0d0e1b]"

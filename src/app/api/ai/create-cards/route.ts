@@ -6,6 +6,8 @@ import { aiDateTimeSchema } from "@/lib/ai/chat-actions";
 import { assertProjectMember, canAccessBoard, requireUserId } from "@/lib/project-auth";
 import { prisma } from "@/lib/prisma";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -112,6 +114,23 @@ export async function POST(request: Request) {
         { action: "CARD_CREATED", cardId: card.id, senderId: userId }
       )
     ));
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/ai/create-cards",
+      requestMethod: "POST",
+      category: "AI",
+      action: "AI_CARDS_CREATED",
+      severity: "NOTICE",
+      status: "SUCCESS",
+      targetType: "BOARD",
+      targetId: payload.boardId,
+      summary: `Created ${createdCards.length} card(s) via AI Assistant`,
+      metadata: { projectId: payload.projectId, boardId: payload.boardId, createdCount: createdCards.length, cardIds: createdCards.map((c) => c.id) }
+    });
 
     return NextResponse.json({ createdCount: createdCards.length, cards: createdCards }, { status: 201 });
   } catch (error) {

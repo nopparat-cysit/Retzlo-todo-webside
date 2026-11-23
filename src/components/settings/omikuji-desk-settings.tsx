@@ -332,13 +332,13 @@ export function OmikujiDeskSettings() {
         >
           <div className="flex items-center gap-2">
             {settings.customCsvName ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400">
-                <CheckCircle2 className="h-3.5 w-3.5" />
+              <span className="inline-flex max-w-full break-words items-center gap-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400">
+                <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
                 <span>{settings.customCsvName} ({settings.customFortunesCount || 100} ใบ)</span>
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-700 dark:text-amber-400">
-                <CheckCircle2 className="h-3.5 w-3.5" />
+              <span className="inline-flex max-w-full break-words items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-700 dark:text-amber-400">
+                <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
                 <span>Asakusa Kannon 100 Cards (ชุดมาตรฐาน 2 ภาษา)</span>
               </span>
             )}
@@ -399,7 +399,7 @@ export function OmikujiDeskSettings() {
                   : "border-red-500/30 bg-red-500/10 text-red-800 dark:text-red-300"
               )}
             >
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-start gap-2.5">
                   {validationResult.valid ? (
                     <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />

@@ -127,15 +127,14 @@ describe("chunk-recovery utility", () => {
         },
       };
 
-      // @ts-expect-error Mocking partial window for Node testing
       global.window = {
         location: {
           href: "http://localhost:3000/projects",
           reload: reloadMock,
           replace: replaceMock,
-        },
-        sessionStorage: fakeStorage,
-      };
+        } as unknown as Location,
+        sessionStorage: fakeStorage as unknown as Storage,
+      } as unknown as Window & typeof globalThis;
     });
 
     afterEach(() => {

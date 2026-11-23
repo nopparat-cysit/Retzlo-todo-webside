@@ -391,12 +391,12 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
       role="dialog"
       aria-modal="true"
       aria-label="Command palette"
-      className="fixed inset-0 z-[1500] flex items-start justify-center bg-black/40 px-3 pt-[16vh] backdrop-blur-sm dark:bg-ink-950/75 dark:backdrop-blur-md"
+      className="fixed inset-0 z-[1500] flex items-start justify-center bg-black/40 px-3 pt-[min(12dvh,4rem)] pb-4 backdrop-blur-sm dark:bg-ink-950/75 dark:backdrop-blur-md"
       onClick={() => setOpen(false)}
     >
       {/* Panel */}
       <div
-        className="lofi-panel w-full max-w-lg overflow-hidden rounded-2xl p-0 shadow-2xl border border-stone-200 dark:border-white/10"
+        className="lofi-panel flex flex-col max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-hidden rounded-2xl p-0 shadow-2xl border border-stone-200 dark:border-white/10"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search input */}
@@ -428,7 +428,7 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
         <ul
           id="command-palette-results"
           role="listbox"
-          className="scrollbar-soft max-h-80 overflow-y-auto p-1.5 space-y-1"
+          className="scrollbar-soft flex-1 min-h-0 max-h-80 overflow-y-auto p-1.5 space-y-1"
         >
           {filteredGroups.length === 0 && (
             <li className="px-4 py-8 text-center text-xs text-stone-500 dark:text-stone-400">
@@ -495,7 +495,7 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
         </ul>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-stone-200 bg-stone-50/70 px-4 py-2 dark:border-white/5 dark:bg-white/[0.01]">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-stone-200 bg-stone-50/70 px-4 py-2 dark:border-white/5 dark:bg-white/[0.01]">
           <p className="text-[10px] text-stone-500 dark:text-stone-400">
             <span className="mr-0.5 font-mono">↑↓</span> navigate ·{" "}
             <span className="mr-0.5 font-mono">Enter</span> select ·{" "}

@@ -3,6 +3,8 @@ import { z } from "zod";
 import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 const redeemRewardSchema = z.object({
   rewardId: z.string().uuid(),
@@ -111,59 +113,95 @@ export async function POST(request: Request) {
         return jsonError(`Insufficient balance. You need ${reward.price} coins.`, 400);
       }
 
-      const redemption = await prisma.$transaction(async (tx) => {
-        // 1. Deduct project coins from member
-        await tx.projectMember.update({
-          where: { userId_projectId: { userId, projectId } },
-          data: { coins: { decrement: reward.price } },
-        });
-
-        // 2. Decrement stock if applicable
-        if (reward.hasQuantity) {
-          await tx.reward.update({
-            where: { id: reward.id },
-            data: { quantity: { decrement: 1 } },
+      let redemption;
+      try {
+        redemption = await prisma.$transaction(async (tx) => {
+          // 1. Deduct project coins from member atomically
+          const coinResult = await tx.projectMember.updateMany({
+            where: { id: membership.id, coins: { gte: reward.price } },
+            data: { coins: { decrement: reward.price } },
           });
-        }
+          if (coinResult.count === 0) {
+            throw new Error("Insufficient coins");
+          }
 
-        // 3. Create redemption queue record (PENDING for project rewards)
-        const record = await tx.redemption.create({
-          data: {
-            userId,
-            rewardId: reward.id,
-            projectId,
-            cost: reward.price,
-            quantity: 1,
-            status: "PENDING",
-          },
-          include: {
-            reward: true,
-          },
-        });
+          // 2. Decrement stock if applicable atomically
+          if (reward.hasQuantity) {
+            const stockResult = await tx.reward.updateMany({
+              where: { id: reward.id, quantity: { gte: 1 } },
+              data: { quantity: { decrement: 1 } },
+            });
+            if (stockResult.count === 0) {
+              throw new Error("Out of stock");
+            }
+          }
 
-        // 4. Alert project owners/admins
-        const admins = await tx.projectMember.findMany({
-          where: {
-            projectId,
-            role: { in: ["OWNER", "ADMIN"] },
-          },
-          select: { userId: true },
-        });
-
-        for (const admin of admins) {
-          await tx.notification.create({
+          // 3. Create redemption queue record (PENDING for project rewards)
+          const record = await tx.redemption.create({
             data: {
-              userId: admin.userId,
+              userId,
+              rewardId: reward.id,
               projectId,
-              type: "REDEMPTION_PENDING",
-              title: "Pending Reward Redemption",
-              message: `${displayName} requested to redeem "${reward.name}" for ${reward.price} coins.`,
-              isRead: false,
+              cost: reward.price,
+              quantity: 1,
+              status: "PENDING",
+            },
+            include: {
+              reward: true,
             },
           });
-        }
 
-        return record;
+          // 4. Alert project owners/admins
+          const admins = await tx.projectMember.findMany({
+            where: {
+              projectId,
+              role: { in: ["OWNER", "ADMIN"] },
+            },
+            select: { userId: true },
+          });
+
+          for (const admin of admins) {
+            await tx.notification.create({
+              data: {
+                userId: admin.userId,
+                projectId,
+                type: "REDEMPTION_PENDING",
+                title: "Pending Reward Redemption",
+                message: `${displayName} requested to redeem "${reward.name}" for ${reward.price} coins.`,
+                isRead: false,
+              },
+            });
+          }
+
+          return record;
+        });
+      } catch (txError) {
+        if (txError instanceof Error && txError.message === "Insufficient coins") {
+          return jsonError(`Insufficient balance. You need ${reward.price} coins.`, 400);
+        }
+        if (txError instanceof Error && txError.message === "Out of stock") {
+          return jsonError("This reward is currently out of stock.", 400);
+        }
+        throw txError;
+      }
+
+      void createAuditLog({
+        actorId: userId,
+        actorEmail: activeUser?.email,
+        actorName: activeUser?.name,
+        ipAddress: getClientIp(request),
+        userAgent: request.headers.get("user-agent") || null,
+        requestPath: "/api/rewards/redeem",
+        requestMethod: "POST",
+        category: "REWARDS",
+        action: "REWARD_REDEEMED",
+        severity: "INFO",
+        status: "SUCCESS",
+        targetType: "REWARD",
+        targetId: reward.id,
+        targetName: reward.name,
+        summary: `${displayName} requested to redeem "${reward.name}" for ${reward.price} project coins.`,
+        metadata: { redemptionId: redemption.id, projectId, cost: reward.price, status: redemption.status }
       });
 
       return NextResponse.json({ redemption });
@@ -178,49 +216,85 @@ export async function POST(request: Request) {
         return jsonError(`Insufficient balance. You need ${reward.price} global coins.`, 400);
       }
 
-      const redemption = await prisma.$transaction(async (tx) => {
-        // 1. Deduct global coins
-        await tx.user.update({
-          where: { id: userId },
-          data: { globalCoins: { decrement: reward.price } },
-        });
-
-        // 2. Decrement stock if applicable
-        if (reward.hasQuantity) {
-          await tx.reward.update({
-            where: { id: reward.id },
-            data: { quantity: { decrement: 1 } },
+      let redemption;
+      try {
+        redemption = await prisma.$transaction(async (tx) => {
+          // 1. Deduct global coins atomically
+          const coinResult = await tx.user.updateMany({
+            where: { id: userId, globalCoins: { gte: reward.price } },
+            data: { globalCoins: { decrement: reward.price } },
           });
+          if (coinResult.count === 0) {
+            throw new Error("Insufficient coins");
+          }
+
+          // 2. Decrement stock if applicable atomically
+          if (reward.hasQuantity) {
+            const stockResult = await tx.reward.updateMany({
+              where: { id: reward.id, quantity: { gte: 1 } },
+              data: { quantity: { decrement: 1 } },
+            });
+            if (stockResult.count === 0) {
+              throw new Error("Out of stock");
+            }
+          }
+
+          // 3. Create auto-approved redemption log
+          const record = await tx.redemption.create({
+            data: {
+              userId,
+              rewardId: reward.id,
+              projectId: null,
+              cost: reward.price,
+              quantity: 1,
+              status: "APPROVED",
+            },
+            include: {
+              reward: true,
+            },
+          });
+
+          // 4. Create personal notification receipt
+          await tx.notification.create({
+            data: {
+              userId,
+              projectId: null,
+              type: "REDEMPTION_STATUS",
+              title: "Global Reward Redeemed",
+              message: `You successfully redeemed "${reward.name}" for ${reward.price} global coins!`,
+              isRead: false,
+            },
+          });
+
+          return record;
+        });
+      } catch (txError) {
+        if (txError instanceof Error && txError.message === "Insufficient coins") {
+          return jsonError(`Insufficient balance. You need ${reward.price} global coins.`, 400);
         }
+        if (txError instanceof Error && txError.message === "Out of stock") {
+          return jsonError("This reward is currently out of stock.", 400);
+        }
+        throw txError;
+      }
 
-        // 3. Create auto-approved redemption log
-        const record = await tx.redemption.create({
-          data: {
-            userId,
-            rewardId: reward.id,
-            projectId: null,
-            cost: reward.price,
-            quantity: 1,
-            status: "APPROVED",
-          },
-          include: {
-            reward: true,
-          },
-        });
-
-        // 4. Create personal notification receipt
-        await tx.notification.create({
-          data: {
-            userId,
-            projectId: null,
-            type: "REDEMPTION_STATUS",
-            title: "Global Reward Redeemed",
-            message: `You successfully redeemed "${reward.name}" for ${reward.price} global coins!`,
-            isRead: false,
-          },
-        });
-
-        return record;
+      void createAuditLog({
+        actorId: userId,
+        actorEmail: activeUser?.email,
+        actorName: activeUser?.name,
+        ipAddress: getClientIp(request),
+        userAgent: request.headers.get("user-agent") || null,
+        requestPath: "/api/rewards/redeem",
+        requestMethod: "POST",
+        category: "REWARDS",
+        action: "REWARD_REDEEMED",
+        severity: "INFO",
+        status: "SUCCESS",
+        targetType: "REWARD",
+        targetId: reward.id,
+        targetName: reward.name,
+        summary: `${displayName} redeemed global reward "${reward.name}" for ${reward.price} global coins.`,
+        metadata: { redemptionId: redemption.id, cost: reward.price, status: redemption.status }
       });
 
       return NextResponse.json({ redemption });
@@ -336,6 +410,30 @@ export async function PATCH(request: Request) {
         });
 
         return record;
+      }
+    });
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/rewards/redeem",
+      requestMethod: "PATCH",
+      category: "REWARDS",
+      action: "REDEMPTION_MODERATED",
+      severity: "NOTICE",
+      status: "SUCCESS",
+      targetType: "REDEMPTION",
+      targetId: redemption.id,
+      targetName: redemption.reward.name,
+      summary: `Redemption for "${redemption.reward.name}" in "${projectName}" was ${payload.status.toLowerCase()}.`,
+      metadata: {
+        projectId,
+        rewardId: redemption.rewardId,
+        claimantUserId: redemption.userId,
+        decision: payload.status,
+        rejectionReason: payload.rejectionReason ?? undefined
       }
     });
 

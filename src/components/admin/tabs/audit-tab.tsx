@@ -355,7 +355,7 @@ export function AuditTab() {
           </div>
 
           {/* Export Actions & Refresh using Global Button */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -468,7 +468,7 @@ export function AuditTab() {
       {/* Audit Log Table in Global Panel */}
       <Panel className="p-0 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[860px] text-left text-xs">
             <thead className="border-b border-theme-border/60 bg-stone-50/80 font-mono text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
               <tr>
                 <th className="px-4 py-3 font-semibold">Timestamp</th>

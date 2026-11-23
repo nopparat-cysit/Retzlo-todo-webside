@@ -110,7 +110,7 @@ export function StorageTab() {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="relative max-w-xs">
+          <div className="relative flex-1 min-w-0 max-w-xs">
             <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone-400" />
             <Input
               value={search}
@@ -128,7 +128,7 @@ export function StorageTab() {
       {/* Storage Data Table */}
       <div className="overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#0c0d18]">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[800px] text-left text-xs">
             <thead className="border-b border-stone-200/80 bg-stone-50/80 font-mono text-[11px] uppercase tracking-wider text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
               <tr>
                 <th className="px-4 py-3 font-semibold">File Name</th>

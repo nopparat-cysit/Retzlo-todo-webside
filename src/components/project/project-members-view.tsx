@@ -338,9 +338,9 @@ export function ProjectMembersView({
                   Workspace
                 </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100 flex items-center gap-2.5">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100 flex flex-wrap items-center gap-2.5">
                 <span>Project Members</span>
-                <span className="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/15 dark:text-dusk-lavender">
+                <span className="inline-flex shrink-0 whitespace-nowrap items-center rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/15 dark:text-dusk-lavender">
                   {totalCount} {totalCount === 1 ? "Member" : "Members"}
                 </span>
               </h1>
@@ -557,7 +557,7 @@ export function ProjectMembersView({
                 </div>
 
                 {/* Role Filter Tabs */}
-                <div className="flex items-center gap-1 rounded-xl border border-stone-200/80 bg-stone-100/70 p-1 dark:border-white/10 dark:bg-white/5 text-xs shrink-0 self-start sm:self-auto">
+                <div className="flex flex-wrap max-w-full items-center gap-1 rounded-xl border border-stone-200/80 bg-stone-100/70 p-1 dark:border-white/10 dark:bg-white/5 text-xs shrink-0 self-start sm:self-auto">
                   <button
                     type="button"
                     onClick={() => setRoleFilter("ALL")}
@@ -768,8 +768,8 @@ export function ProjectMembersView({
           {/* ── TAB 2: PENDING INVITATIONS ── */}
           {activeTab === "invitations" && (
             <div className="mt-4 space-y-4">
-              <div className="flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 pb-3">
-                <div>
+              <div className="flex flex-wrap gap-3 items-center justify-between border-b border-stone-200/80 dark:border-white/10 pb-3">
+                <div className="min-w-0">
                   <h3 className="text-base font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                     <Mail className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                     <span>Invitations Sent</span>
@@ -786,7 +786,7 @@ export function ProjectMembersView({
                   type="button"
                   size="sm"
                   onClick={openInviteModal}
-                  className="text-xs gap-1.5 cursor-pointer"
+                  className="shrink-0 text-xs gap-1.5 cursor-pointer"
                 >
                   <UserPlus className="h-3.5 w-3.5" />
                   <span>Send New Invite</span>
@@ -1064,7 +1064,7 @@ export function ProjectMembersView({
         open={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
         labelledBy="invite-teammate-modal-title"
-        contentClassName="lofi-panel w-full max-w-lg rounded-2xl p-6"
+        contentClassName="lofi-panel max-h-[calc(100dvh-2rem)] overflow-y-auto scrollbar-soft w-full max-w-lg rounded-2xl p-4 sm:p-6"
       >
         <div className="mb-4 flex items-start justify-between gap-3 border-b border-stone-200/80 pb-3 dark:border-white/10">
           <div>
@@ -1110,7 +1110,7 @@ export function ProjectMembersView({
               <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
                 Role in Workspace
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setInviteRole("MEMBER")}

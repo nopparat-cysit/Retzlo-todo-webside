@@ -24,13 +24,26 @@ export async function GET() {
     });
 
     const projectIds = memberships.map((m) => m.projectId);
+    const ownerProjectIds = memberships
+      .filter((m) => m.role === "OWNER")
+      .map((m) => m.projectId);
     const membershipMap = new Map(memberships.map((m) => [m.projectId, m]));
 
     // Fetch notes visible to user
     const notes = await prisma.note.findMany({
       where: {
         projectId: { in: projectIds },
-        OR: [{ isHidden: false }, { authorId: userId }]
+        AND: [
+          { OR: [{ isHidden: false }, { authorId: userId }] },
+          {
+            OR: [
+              { boardId: null },
+              { projectId: { in: ownerProjectIds } },
+              { board: { isPrivate: false } },
+              { board: { members: { some: { userId } } } }
+            ]
+          }
+        ]
       },
       include: {
         author: { select: { name: true, email: true } },

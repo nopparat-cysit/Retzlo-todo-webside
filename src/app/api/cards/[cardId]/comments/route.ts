@@ -7,13 +7,15 @@ import { prisma } from "@/lib/prisma";
 import { assertProjectMember, canAccessBoard, requireUserId } from "@/lib/project-auth";
 import { extractAssigneeIds } from "@/lib/kanban/assignees";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const chatAttachmentSchema = z.object({
   name: z.string(),
-  url: z.string().url(),
+  url: z.string().trim().url().regex(/^https?:\/\//i, "Attachment URL must use HTTP or HTTPS"),
   size: z.number().optional(),
   type: z.string().optional(),
   isImage: z.boolean().optional()
@@ -184,6 +186,24 @@ export async function POST(request: Request, { params }: { params: { cardId: str
       "retzlo:sync",
       { action: "COMMENT_CREATED", cardId: params.cardId, senderId: userId }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: access.membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/cards/${params.cardId}/comments`,
+      requestMethod: "POST",
+      category: "CARD",
+      action: "CARD_COMMENT_ADDED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "CARD_COMMENT",
+      targetId: comment.id,
+      targetName: access.card.title,
+      summary: `Added comment on card "${access.card.title}"`,
+      metadata: { cardId: params.cardId, hasAttachments: Boolean(payload.attachments?.length) }
+    });
 
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {

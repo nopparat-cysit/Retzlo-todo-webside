@@ -30,12 +30,12 @@ export function ProfileClient({ user }: ProfileClientProps) {
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-theme-background text-theme-foreground">
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-theme-border bg-theme-panel/85 px-4 backdrop-blur-md sm:px-8">
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           <BackButton className="border-theme-border bg-theme-paper text-theme-muted hover:border-theme-primary/45 hover:bg-theme-paper-strong hover:text-theme-foreground" />
           <div className="h-4 w-px bg-theme-border" />
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-theme-primary" />
-            <h1 className="text-sm font-semibold text-theme-foreground">Profile Settings</h1>
+          <div className="flex min-w-0 items-center gap-2">
+            <User className="h-4 w-4 shrink-0 text-theme-primary" />
+            <h1 className="truncate text-sm font-semibold text-theme-foreground">Profile Settings</h1>
           </div>
         </div>
 
@@ -65,7 +65,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
             description="Primary account email used for sign-in and notifications"
           >
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-md border border-theme-border bg-theme-paper px-3 py-1.5 text-xs text-theme-muted">
+              <span className="max-w-full break-all rounded-md border border-theme-border bg-theme-paper px-3 py-1.5 text-xs text-theme-muted">
                 {user.email}
               </span>
               <span className="rounded-full border border-theme-success-border bg-theme-success-surface px-2 py-0.5 text-[10px] font-medium text-theme-success">

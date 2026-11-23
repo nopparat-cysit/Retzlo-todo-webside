@@ -17,6 +17,7 @@ const config: Config = {
           "paper-strong": "var(--paper-strong)",
           muted: "var(--muted)",
           border: "var(--border)",
+          "border-strong": "var(--border-strong)",
           accent: "var(--accent)",
           primary: "rgb(var(--primary-rgb) / <alpha-value>)",
           "primary-foreground": "var(--primary-foreground)",

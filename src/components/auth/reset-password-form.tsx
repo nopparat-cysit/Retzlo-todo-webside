@@ -5,10 +5,12 @@ import { FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/toast";
 
 type Step = "verify" | "reset" | "done";
 
 export function ResetPasswordForm({ email }: { email: string }) {
+  const { toast } = useToast();
   const [step, setStep] = useState<Step>("verify");
   const [emailValue, setEmailValue] = useState(email);
   const [otpValue, setOtpValue] = useState("");
@@ -35,12 +37,16 @@ export function ResetPasswordForm({ email }: { email: string }) {
 
     if (!response.ok) {
       const data = (await response.json()) as { error?: string };
-      setError(data.error ?? "OTP is invalid or expired.");
+      const errMsg = data.error ?? "OTP is invalid or expired.";
+      setError(errMsg);
+      toast({ message: errMsg, type: "error" });
       return;
     }
 
     setStep("reset");
-    setMessage("OTP verified. Create your new password.");
+    const okMsg = "OTP verified. Create your new password.";
+    setMessage(okMsg);
+    toast({ message: okMsg, type: "success" });
   }
 
   async function resetPassword(event: FormEvent<HTMLFormElement>) {
@@ -65,12 +71,16 @@ export function ResetPasswordForm({ email }: { email: string }) {
 
     if (!response.ok) {
       const data = (await response.json()) as { error?: string };
-      setError(data.error ?? "Could not reset password.");
+      const errMsg = data.error ?? "Could not reset password.";
+      setError(errMsg);
+      toast({ message: errMsg, type: "error" });
       return;
     }
 
     setStep("done");
-    setMessage("Password reset. You can sign in now.");
+    const okMsg = "Password reset. You can sign in now.";
+    setMessage(okMsg);
+    toast({ message: okMsg, type: "success" });
   }
 
   if (step === "done") {

@@ -79,7 +79,11 @@ export async function uploadToR2(
   const bucketName = process.env.R2_BUCKET_NAME || "retzlo-storage";
   const cleanKey = key.replace(/^\/+/, "");
 
-  const body = buffer instanceof Buffer ? buffer : Buffer.from(buffer);
+  const body = Buffer.isBuffer(buffer)
+    ? buffer
+    : buffer instanceof ArrayBuffer
+      ? Buffer.from(new Uint8Array(buffer))
+      : Buffer.from(buffer);
 
   const command = new PutObjectCommand({
     Bucket: bucketName,

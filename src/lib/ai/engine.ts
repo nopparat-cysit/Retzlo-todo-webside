@@ -111,8 +111,6 @@ export function getAiApiKey(overrideKey?: string): string {
     process.env.OPENROUTER_API_KEY ||
     process.env.AI_API_KEY ||
     process.env.DEEPSEEK_API_KEY ||
-    process.env.NEXT_PUBLIC_AI_API_KEY ||
-    process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY ||
     ""
   ).trim();
 
@@ -151,17 +149,6 @@ export function getAiApiKey(overrideKey?: string): string {
     }
   } catch {
     // Ignore file read error in restricted runtimes
-  }
-
-  // 3. Built-in default key fallback (ensures immediate operation without forcing manual entry)
-  try {
-    const defaultKey = Buffer.from(
-      "c2stYjdjNWRkZDBjMzdlNDNmNDg3MGViNzQyMzgzMDMyMzA=",
-      "base64"
-    ).toString("utf-8");
-    if (defaultKey) return defaultKey;
-  } catch {
-    // Ignore
   }
 
   return "";

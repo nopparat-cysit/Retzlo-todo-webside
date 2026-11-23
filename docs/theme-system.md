@@ -1232,21 +1232,23 @@ Template:
   - Fixed `ProjectShell` `z-10` mobile drawer traps via `ModalPortal`, raised `OmikujiModal` (`z-[1000]`) and `AppModal` discard confirm (`above-modal`), fixed `EditProjectModal` 2-column grid, fixed `showToast` runtime crashes, removed `/hub/*` 404 pins, expanded `design-system-guard.test.ts` (`backdrop-blur-xs`, `py-0.2`, `bg-theme-base`, `border-theme-border-strong`), and replaced UI-chrome emojis across 34 source files with Lucide icons.
 - Remaining visual follow-up: Manual light/dark desktop and 390px mobile visual review recommended across authenticated routes (`/projects`, `/project/[id]/board`, `/profile`, `/project/[id]/rewards`).
 
+### 2026-11-23 - Global CSS Border-Strong Token, Mojibake Cleanup, Input Picker Token Alignment & Dead Primitive Removal
+- Coverage: `src/app/globals.css`, `tailwind.config.ts`, `src/components/ui/input.tsx`, `src/components/ui/panel.tsx`, and unused primitives (`page-shell.tsx`, `label.tsx`, `sticker-surface.tsx`).
+- Semantic Token & Primitive Updates:
+  - Added `--border-strong` (`rgba(245, 239, 230, 0.26)` in dark `:root`, `#d6cfc4` in light `:root[data-theme="light"]`, `.light`) in `src/app/globals.css` and exposed `theme.border-strong` (`border-theme-border-strong`) in `tailwind.config.ts`.
+  - Updated the native date/time picker trigger button in `src/components/ui/input.tsx` from fixed `text-dusk-amber/80 hover:bg-dusk-amber/10 hover:text-dusk-amber` to semantic tokens `text-theme-muted hover:bg-theme-paper hover:text-theme-foreground`.
+  - Cleaned 16 mojibake comment headers in `src/app/globals.css` without altering `!important` count (`165 <= 170`).
+  - Removed unused `src/components/ui/page-shell.tsx`, `src/components/ui/label.tsx`, `src/components/ui/sticker-surface.tsx`, and the duplicate unused `PageShell` export from `src/components/ui/panel.tsx`.
+- Verification: `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors), `npx vitest run` (124/124 test files, 760 tests passed), and `npm run build` with strict TypeScript and ESLint checks enabled in `next.config.mjs`.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### 2026-11-23 - Full-System Responsive UX/UI Hardening Sweep (Units A, B & C)
+- Coverage: All dashboard shells, workspaces, Kanban board/columns/modals, Calendar, Notes, Diary, FAB Hub, Rewards, Members, Settings, Zen Garden, Shared UI Primitives (`AppModal`, `ConfirmModal`, `Popover`, `DropdownMenu`, `Select`, `DatePicker`, `TimePicker`, `DateTimePicker`, `CommandPalette`, `Tabs`, `SegmentedControl`), AI Chat & Modals, Super Admin Portal & Drawers, Auth scenes, Profile, Contact, Help Center, and Marketing Landing Page.
+- Key Responsive Fixes:
+  - Fixed `< lg` scroll traps in `projects-dashboard.tsx` (`flex-1 grid-rows-[minmax(0,1fr)]`), `src/app/(dashboard)/project/[id]/rewards/page.tsx` (`h-full min-h-0 overflow-y-auto`), `project-quick-hub.tsx`, `notes-panel.tsx`, `board-notes-rail.tsx`, `diary-list-panel.tsx`, `diary-hub-panel.tsx`, and `diary-checklist.tsx`.
+  - Resolved floating button overlaps: lifted `ProjectQuickHub` FAB above `ProjectMobileBottomNav` (`bottom-24 right-4 lg:bottom-5 lg:right-5`), preserved `FabHub` desktop offset alongside open AI Chat sidebar (`lg:right-[calc(450px+1.5rem)]`), and bounded `AiChatWidget` width on 640px-850px tablets when `FabHub` is open.
+  - Added viewport height and width clamps (`max-w-[calc(100vw-1.5rem)]`, `max-h-[min(calc(100dvh-2rem),var(--radix-*-available-height))]`, `collisionPadding={12}`) across `Popover`, `DropdownMenu`, `Select`, `NotificationsPopover`, `UserProfilePopover`, `DatePicker`, `TimePicker`, and `DateTimePicker`.
+  - Replaced `100vh` with `100dvh` and removed fixed `min-h-[540px]` across modals (`AppModal`, `ConfirmModal`, `CommandPalette`, `BoardSettingsModal`, `CreateBoardModal`, `AiBreakdownModal`, `AiProjectSummaryModal`, `CreateRewardModal`, `ProjectCalendar` modals) so headers and footers never clip on mobile landscape or iOS Safari.
+  - Added mobile View Mode switcher (`Docs`, `Playground`, `Shortcuts`, `FAQ`) and backdrop inside `HelpCenterClient` mobile sidebar, enabled inline day task list for mobile Calendar Week/3-Days views (`viewMode !== "list"`), prevented SSR 335px column width overflow on `< sm` via `max-sm:!w-full`, hid `.auth-studio-overlay` on `< 768px`, and added `min-w-[...]` horizontal scroll guards to all Admin Portal tables.
+- Verification: `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors), `npx vitest run` (124/124 test files, 760 tests passed), and `npm run build` (43/43 routes).
 
 

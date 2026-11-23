@@ -138,7 +138,7 @@ export function RewardsTab() {
       {/* Redemptions Table */}
       <div className="overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#0c0d18]">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[820px] text-left text-xs">
             <thead className="border-b border-stone-200/80 bg-stone-50/80 font-mono text-[11px] uppercase tracking-wider text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
               <tr>
                 <th className="px-4 py-3 font-semibold">User</th>
@@ -310,7 +310,7 @@ export function RewardsTab() {
             className="fixed inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setPendingAction(null)}
           />
-          <div className="relative w-full max-w-md rounded-xl border border-rose-300 bg-white p-6 shadow-2xl dark:border-rose-900 dark:bg-[#121324]">
+          <div className="relative w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl border border-rose-300 bg-white p-6 shadow-2xl dark:border-rose-900 dark:bg-[#121324]">
             <h3 className="font-semibold text-stone-900 dark:text-stone-100 text-sm">
               Reject Redemption & Refund Coins
             </h3>

@@ -14,6 +14,8 @@ import {
 } from "@/lib/project-auth";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 function toDiaryItemResponse(
   item: {
@@ -190,6 +192,24 @@ export async function PATCH(request: Request, { params }: { params: { diaryItemI
       );
     }
 
+    void createAuditLog({
+      actorId: userId,
+      actorRole: context.membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/diary-items/${params.diaryItemId}`,
+      requestMethod: "PATCH",
+      category: "PROJECT",
+      action: "DIARY_ITEM_UPDATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "DIARY_ITEM",
+      targetId: item.id,
+      targetName: item.title,
+      summary: `Updated diary item "${item.title}"`,
+      metadata: { title: item.title }
+    });
+
     return NextResponse.json({
       diaryItem: toDiaryItemResponse(item, {
         membership: context.membership,
@@ -202,7 +222,7 @@ export async function PATCH(request: Request, { params }: { params: { diaryItemI
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: { diaryItemId: string } }) {
+export async function DELETE(request: Request, { params }: { params: { diaryItemId: string } }) {
   try {
     const userId = await requireUserId();
 
@@ -235,6 +255,24 @@ export async function DELETE(_request: Request, { params }: { params: { diaryIte
         { action: "DIARY_ITEM_DELETED", itemId: params.diaryItemId, senderId: userId }
       );
     }
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: context.membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/diary-items/${params.diaryItemId}`,
+      requestMethod: "DELETE",
+      category: "PROJECT",
+      action: "DIARY_ITEM_DELETED",
+      severity: "WARNING",
+      status: "SUCCESS",
+      targetType: "DIARY_ITEM",
+      targetId: params.diaryItemId,
+      targetName: context.item.title,
+      summary: `Deleted diary item "${context.item.title}"`,
+      metadata: { title: context.item.title }
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

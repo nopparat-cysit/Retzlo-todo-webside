@@ -34,7 +34,7 @@ export async function requireAdminUser() {
     }
   });
 
-  if (!user || !isAdminRole(user.globalRole)) {
+  if (!user || user.status === "SUSPENDED" || !isAdminRole(user.globalRole)) {
     return null;
   }
 

@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 
 import { jsonError, parseError } from "@/lib/api";
-import { assertProjectMember, requireUserId } from "@/lib/project-auth";
+import { assertProjectMember, canAccessBoard, requireUserId } from "@/lib/project-auth";
 import { prisma } from "@/lib/prisma";
 import { serializeCard } from "@/lib/kanban/serialize-card";
 import { triggerPusherEvent } from "@/lib/pusher/server";
 import { logBoardActivity } from "@/lib/kanban/activity-logger";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: { cardId: string } }
 ) {
   try {
@@ -25,7 +27,14 @@ export async function POST(
             id: true,
             name: true,
             boardId: true,
-            board: { select: { id: true, projectId: true } }
+            board: {
+              select: {
+                id: true,
+                projectId: true,
+                isPrivate: true,
+                members: { select: { userId: true } }
+              }
+            }
           }
         }
       }
@@ -41,6 +50,10 @@ export async function POST(
     const membership = await assertProjectMember(projectId, userId);
     if (!membership) {
       return jsonError("You do not have access to this project.", 403);
+    }
+
+    if (!canAccessBoard(card.column.board, userId, membership.role)) {
+      return jsonError("You do not have access to this private board.", 403);
     }
 
     const updatedCard = await prisma.card.update({
@@ -75,6 +88,24 @@ export async function POST(
         senderId: userId
       }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/cards/${params.cardId}/restore`,
+      requestMethod: "POST",
+      category: "CARD",
+      action: "CARD_RESTORED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "CARD",
+      targetId: card.id,
+      targetName: card.title,
+      summary: `Restored card "${card.title}"`,
+      metadata: { boardId, columnId: card.columnId }
+    });
 
     return NextResponse.json({ ok: true, card: serializeCard(updatedCard) });
   } catch (error) {

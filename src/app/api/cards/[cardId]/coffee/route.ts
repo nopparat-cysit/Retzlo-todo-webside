@@ -11,6 +11,8 @@ import {
   withCardCoffeeCheer
 } from "@/lib/kanban/coffee-cheers";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -82,7 +84,7 @@ export async function GET(_request: Request, { params }: { params: { cardId: str
   }
 }
 
-export async function POST(_request: Request, { params }: { params: { cardId: string } }) {
+export async function POST(request: Request, { params }: { params: { cardId: string } }) {
   try {
     const userId = await requireUserId();
     if (!userId) {
@@ -173,6 +175,24 @@ export async function POST(_request: Request, { params }: { params: { cardId: st
         userIds: cheersData.userIds
       }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: access.membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/cards/${params.cardId}/coffee`,
+      requestMethod: "POST",
+      category: "CARD",
+      action: "CARD_COFFEE_CHEERED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "CARD",
+      targetId: params.cardId,
+      targetName: access.card.title,
+      summary: `Cheered coffee for card "${access.card.title}"`,
+      metadata: { count: cheersData.count }
+    });
 
     return NextResponse.json({
       ok: true,

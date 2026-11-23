@@ -523,7 +523,7 @@ export function TimePicker({
           align={align}
           sideOffset={6}
           collisionPadding={12}
-          className="w-auto max-w-[calc(100vw-1.5rem)] p-3 shadow-xl backdrop-blur-xl border border-stone-200/90 bg-[#faf7f2]/95 dark:border-white/12 dark:bg-[#0e1025]/95 rounded-2xl z-[1200]"
+          className="w-auto max-w-[calc(100vw-1.5rem)] max-h-[min(calc(100dvh-2rem),var(--radix-popover-content-available-height))] overflow-y-auto p-3 shadow-xl backdrop-blur-xl border border-stone-200/90 bg-[#faf7f2]/95 dark:border-white/12 dark:bg-[#0e1025]/95 rounded-2xl z-[1200]"
         >
           <TimeView value={value} onChange={handleSelectTime} onConfirm={handleConfirm} />
         </PopoverContent>

@@ -470,7 +470,7 @@ export function BoardSettingsModal({
         hasUnsavedChanges={isDirty}
       >
         <form
-          className="lofi-panel flex flex-col w-full h-[92vh] sm:h-[88vh] max-h-[860px] min-h-[540px] rounded-2xl overflow-hidden p-0 border-0 shadow-none bg-theme-panel text-theme-foreground"
+          className="lofi-panel flex flex-col w-full h-[92dvh] sm:h-[88dvh] max-h-[calc(100dvh-1rem)] sm:max-h-[860px] min-h-0 rounded-2xl overflow-hidden p-0 border-0 shadow-none bg-theme-panel text-theme-foreground"
           onSubmit={handleSaveIntent}
         >
           {/* Header */}
@@ -495,13 +495,13 @@ export function BoardSettingsModal({
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-1">
-                  <h2 id="board-settings-title" className="mt-0.5 text-base sm:text-lg font-bold text-stone-900 truncate max-w-xs sm:max-w-md dark:text-white">
+                <div className="flex min-w-0 items-center gap-1">
+                  <h2 id="board-settings-title" className="mt-0.5 text-base sm:text-lg font-bold text-stone-900 truncate max-w-full sm:max-w-md dark:text-white">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className="group inline-flex items-center gap-1.5 rounded-lg -ml-1 px-1.5 py-0.5 hover:bg-stone-100 dark:hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 max-w-xs sm:max-w-md cursor-pointer text-left font-inherit"
+                          className="group inline-flex items-center gap-1.5 rounded-lg -ml-1 px-1.5 py-0.5 hover:bg-stone-100 dark:hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 max-w-full sm:max-w-md cursor-pointer text-left font-inherit"
                           title="Click to switch board"
                           aria-label={`Current board: ${currentBoardDisplayName}. Click to switch board`}
                         >
@@ -578,7 +578,7 @@ export function BoardSettingsModal({
                 <div className="hidden md:block px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400">
                   Board Settings
                 </div>
-                <TabsList className="flex flex-row md:flex-col w-full bg-stone-100/70 border border-stone-200/60 p-1 rounded-xl dark:border-white/5 dark:bg-white/[0.02] gap-1 h-auto overflow-x-auto md:overflow-visible">
+                <TabsList className="grid grid-cols-2 md:flex md:flex-col w-full md:w-52 shrink-0 h-auto bg-stone-200/50 dark:bg-ink-950/60 p-1.5 rounded-xl border border-stone-200/60 dark:border-white/5 gap-1 items-stretch justify-start">
                   <TabsTrigger
                     value="general"
                     className="w-full justify-start text-xs py-2 px-2.5 font-medium transition cursor-pointer"
@@ -719,11 +719,11 @@ export function BoardSettingsModal({
           </Tabs>
 
           {/* Footer Actions */}
-          <div className="px-5 py-3 border-t border-stone-200/80 dark:border-white/10 shrink-0 flex items-center justify-between gap-3 bg-stone-50/70 dark:bg-stone-900/60">
+          <div className="px-3.5 sm:px-5 py-3 bg-stone-50/90 dark:bg-ink-950/80 border-t border-stone-200/80 dark:border-white/10 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 shrink-0">
             <span className="text-[11px] text-stone-500">
               {isDirty ? "• Unsaved changes pending" : "All changes saved"}
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-end gap-2 w-full sm:w-auto">
               <Button type="button" variant="ghost" onClick={onClose} disabled={isSaving}>
                 Cancel
               </Button>

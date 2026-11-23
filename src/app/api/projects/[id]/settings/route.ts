@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { projectAppearanceUpdateSchema } from "@/lib/projects/appearance";
 import { assertProjectMember, isOwnerRole, requireUserId } from "@/lib/project-auth";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 const updateProjectSettingsSchema = z.object({
   allowMemberPrivateItems: z.boolean().optional(),
@@ -53,6 +55,23 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       "retzlo:sync",
       { action: "PROJECT_SETTINGS_UPDATED", projectId: params.id, senderId: userId }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/projects/${params.id}/settings`,
+      requestMethod: "PATCH",
+      category: "PROJECT",
+      action: "PROJECT_SETTINGS_UPDATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "PROJECT",
+      targetId: params.id,
+      summary: `Updated project settings for project ${params.id}`,
+      afterState: project
+    });
 
     return NextResponse.json({ project });
   } catch (error) {

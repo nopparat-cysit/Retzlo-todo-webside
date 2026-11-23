@@ -54,12 +54,13 @@ SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayNam
 const SelectContent = forwardRef<
   ElementRef<typeof SelectPrimitive.Content>,
   ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = "popper", ...props }, ref) => (
+>(({ className, children, position = "popper", collisionPadding = 12, ...props }, ref) => (
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       ref={ref}
+      collisionPadding={collisionPadding}
       className={cn(
-        "motion-floating-in z-[1100] max-h-80 min-w-[8rem] overflow-hidden rounded-xl border border-theme-border bg-theme-popover text-theme-foreground shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
+        "motion-floating-in z-[1100] max-h-80 min-w-[8rem] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-xl border border-theme-border bg-theme-popover text-theme-foreground shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
         position === "popper" && "data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1",
         className
       )}

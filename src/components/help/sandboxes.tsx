@@ -483,7 +483,7 @@ export function InteractivePrioritiesDemo({ isEn }: { isEn: boolean }) {
         </div>
 
         {/* Dynamic Card Preview using the selected color */}
-        <div className="mt-3 p-3 rounded-xl border border-stone-200/90 bg-stone-50/70 dark:border-white/10 dark:bg-white/[0.02] flex items-center justify-between">
+        <div className="mt-3 p-3 rounded-xl border border-stone-200/90 bg-stone-50/70 dark:border-white/10 dark:bg-white/[0.02] flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
             <span
               className={cn(
@@ -525,7 +525,7 @@ export function InteractiveCoffeeDemo({ isEn }: { isEn: boolean }) {
 
   return (
     <div className="rounded-2xl border border-rose-200/80 bg-rose-50/30 p-4 sm:p-5 dark:border-dusk-rose/30 dark:bg-dusk-rose/5 shadow-sm space-y-3.5">
-      <div className="flex items-center justify-between border-b border-rose-100 dark:border-white/10 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rose-100 dark:border-white/10 pb-3">
         <div className="flex items-center gap-2">
           <div className="grid h-7 w-7 place-items-center rounded-lg bg-rose-500 text-white shadow-sm">
             <Coffee className="h-4 w-4" />

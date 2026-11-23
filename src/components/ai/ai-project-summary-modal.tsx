@@ -185,14 +185,14 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
       labelledBy="ai-summary-title"
       contentClassName="lofi-panel flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-dusk-lavender/30 shadow-2xl"
     >
-      <div className="flex flex-col overflow-hidden max-h-[85vh]">
+      <div className="flex flex-col overflow-hidden max-h-[90dvh]">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-white/10 p-4 sm:p-5">
-          <div className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-xl border border-indigo-400/40 bg-indigo-500/15 text-indigo-400 shadow-sm">
+        <div className="flex items-center justify-between gap-2 border-b border-white/10 p-4 sm:p-5">
+          <div className="flex min-w-0 flex-1 items-center gap-2.5">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-indigo-400/40 bg-indigo-500/15 text-indigo-400 shadow-sm">
               <Sparkles className="h-5 w-5 animate-pulse text-dusk-amber" />
             </div>
-            <div>
+            <div className="min-w-0 flex-1">
               <h2
                 id="ai-summary-title"
                 className="text-base sm:text-lg font-bold tracking-tight text-stone-100 flex items-center gap-2"
@@ -206,7 +206,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             {credits !== null && (
               <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[11px] font-mono text-amber-300">
                 <Coins className="h-3 w-3" />
@@ -225,7 +225,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
         </div>
 
         {/* Content */}
-        <div className="scrollbar-soft flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+        <div className="scrollbar-soft flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 space-y-4">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12 space-y-3">
               <Loader2 className="h-8 w-8 animate-spin text-dusk-lavender" />
@@ -237,7 +237,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
           ) : summary ? (
             <div className="space-y-4 text-xs sm:text-sm">
               {/* Health & Completion Banner */}
-              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] p-3.5">
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-3.5">
                 <div className="flex items-center gap-2.5">
                   <span
                     className={cn(
@@ -360,7 +360,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
         </div>
 
         {/* Footer */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 bg-white/[0.02] p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 bg-white/[0.02] p-4 sm:p-5 pb-safe">
           <div className="flex items-center gap-2">
             <Button
               type="button"

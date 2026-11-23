@@ -210,11 +210,11 @@
 @media (max-width: 480px) {
   .header { padding: 20px 20px 16px; }
   .tabs { margin: 0 20px; }
-  .panelBody { padding: 18px 20px 0; }
+  .panelBody { padding: 18px 20px 14px; }
   .wisdom { padding: 15px 20px 17px; }
   .title { font-size: 25px; }
   .scene { height: 210px; }
-  .sceneCopy { left: 17px; }
+  .sceneCopy { left: 17px; max-width: calc(100% - 125px); }
   .sceneCopy > p { font-size: 22px; }
   .scenePlant { right: 17px; width: 100px; height: 112px; }
   .ritualMeta { font-size: 8px; }
@@ -226,8 +226,8 @@
   .modalHeader .iconButton { width: 32px; height: 32px; }
   .modalBody { padding: 18px 15px 22px; }
   .modalMeta { flex-direction: column; gap: 4px; }
-  .modalScene .sceneCopy { left: 18px; top: 22px; }
-  .modalScene .sceneCopy > p { font-size: 24px; }
+  .modalScene .sceneCopy { left: 18px; top: 22px; max-width: calc(100% - 135px); }
+  .modalScene .sceneCopy > p { font-size: clamp(18px, 5vw, 24px); }
   .modalScene .scenePlant { right: 15px; width: 110px; height: 120px; bottom: 32px; }
   .readingIntro { margin-top: 27px; }
   .readingIntro h3 { font-size: 21px; }

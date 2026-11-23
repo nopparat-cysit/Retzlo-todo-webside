@@ -511,10 +511,10 @@ function NoteModal({
       hasUnsavedChanges={isDirty}
       onDiscard={onClose}
       labelledBy="note-card-title"
-      contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-5xl flex-col overflow-hidden rounded-2xl"
+      contentClassName="lofi-panel flex max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] max-w-5xl flex-col overflow-hidden rounded-2xl"
     >
       <form
-        className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden"
+        className="flex max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden"
         onSubmit={(e) => {
           e.preventDefault();
           const due = composeDueDate(date, time);
@@ -547,8 +547,8 @@ function NoteModal({
           </button>
         </div>
 
-        <div className="grid min-h-0 flex-1 gap-0 overflow-hidden lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.8fr)]">
-          <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
+        <div className="flex flex-col lg:grid min-h-0 flex-1 gap-0 overflow-y-auto lg:overflow-hidden scrollbar-soft lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.8fr)]">
+          <div className="lg:scrollbar-soft lg:min-h-0 space-y-4 lg:overflow-y-auto p-5">
             {/* Title Section */}
             <div className="space-y-1.5">
               <label
@@ -582,7 +582,7 @@ function NoteModal({
               </label>
               <Textarea
                 id="rail-create-note-content"
-                className="min-h-[360px]"
+                className="min-h-[180px] sm:min-h-[240px] lg:min-h-[360px]"
                 name="content"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
@@ -591,7 +591,7 @@ function NoteModal({
             </div>
           </div>
 
-          <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
+          <aside className="lg:scrollbar-soft lg:min-h-0 space-y-5 lg:overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
             {/* Folder Selector */}
             <div className="space-y-1.5 text-sm text-stone-300">
               <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Folder</span>
@@ -862,10 +862,10 @@ function EditNoteModal({
         hasUnsavedChanges={isDirty}
         onDiscard={onClose}
         labelledBy="note-card-title"
-        contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-5xl flex-col overflow-hidden rounded-2xl"
+        contentClassName="lofi-panel flex max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] max-w-5xl flex-col overflow-hidden rounded-2xl"
       >
         <form
-          className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden"
+          className="flex max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden"
           onSubmit={(e) => {
             e.preventDefault();
             const due = composeDueDate(date, time);
@@ -898,8 +898,8 @@ function EditNoteModal({
             </button>
           </div>
 
-          <div className="grid min-h-0 flex-1 gap-0 overflow-hidden lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.8fr)]">
-            <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
+          <div className="flex flex-col lg:grid min-h-0 flex-1 gap-0 overflow-y-auto lg:overflow-hidden scrollbar-soft lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.8fr)]">
+            <div className="lg:scrollbar-soft lg:min-h-0 space-y-4 lg:overflow-y-auto p-5">
               {/* Title Section */}
               <div className="space-y-1.5">
                 <label
@@ -933,7 +933,7 @@ function EditNoteModal({
                 </label>
                 <Textarea
                   id="rail-edit-note-content"
-                  className="min-h-[360px]"
+                  className="min-h-[180px] sm:min-h-[240px] lg:min-h-[360px]"
                   name="content"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
@@ -942,7 +942,7 @@ function EditNoteModal({
               </div>
             </div>
 
-            <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
+            <aside className="lg:scrollbar-soft lg:min-h-0 space-y-5 lg:overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
               {/* Folder Selector */}
               <div className="space-y-1.5 text-sm text-stone-300">
                 <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Folder</span>

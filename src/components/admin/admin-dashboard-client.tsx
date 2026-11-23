@@ -360,7 +360,7 @@ export function AdminDashboardClient({
       </div>
 
       {/* Navigation Groups List */}
-      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4 scrollbar-soft">
+      <nav className="flex-1 min-h-0 space-y-6 overflow-y-auto px-3 py-4 scrollbar-soft">
         {navSections.map((section) => (
           <div key={section.title} className="space-y-1">
             <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400">
@@ -546,7 +546,7 @@ export function AdminDashboardClient({
         </header>
 
         {/* Tab Body Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
           {activeTab === "overview" && (
             <OverviewTab
               data={overview}

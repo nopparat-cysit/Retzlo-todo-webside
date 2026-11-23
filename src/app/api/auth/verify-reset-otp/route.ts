@@ -4,6 +4,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { normalizeEmail, verifyOtp, verifyResetOtpSchema } from "@/lib/auth/password-reset";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { createAuditLog } from "@/lib/audit/audit-logger";
 
 export async function POST(request: Request) {
   try {
@@ -41,6 +42,23 @@ export async function POST(request: Request) {
 
       return jsonError("OTP is invalid or expired.", 400);
     }
+
+    void createAuditLog({
+      actorId: resetOtp.userId,
+      actorEmail: email,
+      ipAddress: ip,
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/auth/verify-reset-otp",
+      requestMethod: "POST",
+      category: "AUTH",
+      action: "PASSWORD_RESET_OTP_VERIFIED",
+      severity: "NOTICE",
+      status: "SUCCESS",
+      targetType: "USER",
+      targetId: resetOtp.userId,
+      targetName: email,
+      summary: `Password reset OTP verified for ${email}.`
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

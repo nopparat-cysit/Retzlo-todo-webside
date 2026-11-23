@@ -224,7 +224,7 @@ export async function ProjectShell({
 
         <section className="flex min-h-0 min-w-0 flex-1 flex-col rounded-2xl overflow-hidden">
           <header className="lofi-panel sticky top-1.5 sm:top-2 z-40 backdrop-blur-xl bg-ink-950/80 mb-2 sm:mb-3 flex min-h-12 sm:min-h-14 flex-nowrap items-center justify-between gap-2 sm:gap-3 overflow-visible rounded-2xl px-2 sm:px-4">
-            <div className="flex min-w-0 items-center gap-1.5 sm:gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2.5">
               <label
                 htmlFor="project-sidebar-toggle"
                 className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/[0.045] text-stone-300 transition hover:border-dusk-lavender/45 hover:bg-white/10 hover:text-dusk-lavender lg:hidden"
@@ -245,12 +245,12 @@ export async function ProjectShell({
                 <Building2 className="h-4 w-4" />
               </Link>
               <div className="min-w-0">
-                <div className="hidden min-[640px]:flex lg:hidden 2xl:flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-stone-500">
+                <div className="hidden md:flex lg:hidden 2xl:flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-stone-500">
                   <span>Workspace</span>
                   <span className="text-stone-700">/</span>
                   <span className="text-dusk-amber">Retzlo</span>
                 </div>
-                <h2 className="truncate text-sm sm:text-base font-semibold text-stone-100 max-w-[120px] min-[400px]:max-w-[160px] sm:max-w-[200px] md:max-w-[240px] lg:max-w-[180px] xl:max-w-[220px] 2xl:max-w-none">{project.name}</h2>
+                <h2 className="truncate text-sm sm:text-base font-semibold text-stone-100 max-w-[120px] min-[400px]:max-w-[160px] sm:max-w-full 2xl:max-w-none">{project.name}</h2>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
@@ -270,7 +270,7 @@ export async function ProjectShell({
                 variant="avatar"
                 isAdmin={isGlobalAdmin}
               />
-              <div className="hidden sm:inline-flex"><HelpButton /></div>
+              <div className="hidden md:inline-flex"><HelpButton /></div>
             </div>
           </header>
           <div className="relative z-10 min-h-0 min-w-0 max-w-full flex-1 flex flex-col pb-16 sm:pb-20 lg:pb-0 overflow-hidden">{children}</div>

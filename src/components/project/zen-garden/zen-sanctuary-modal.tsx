@@ -466,11 +466,11 @@ ${activeIsEn ? resolved.growthEn : resolved.growthTh}
   const resolvedFortune = resolveFortuneData(currentFortune);
   const showReading = hasWateredToday && Boolean(currentFortune && resolvedFortune);
   const dimensions: FortuneDimension[] = resolvedFortune ? [
-    { id: "career", label: activeIsEn ? "Career & Purpose" : "การงานและเป้าหมาย", content: activeIsEn ? resolvedFortune.careerEn : resolvedFortune.careerTh, icon: Briefcase },
-    { id: "finance", label: activeIsEn ? "Finance & Wealth" : "การเงินและทรัพย์สิน", content: activeIsEn ? resolvedFortune.financeEn : resolvedFortune.financeTh, icon: Coins },
-    { id: "love", label: activeIsEn ? "Love & Harmony" : "ความรักและความสัมพันธ์", content: activeIsEn ? resolvedFortune.loveEn : resolvedFortune.loveTh, icon: Heart },
-    { id: "health", label: activeIsEn ? "Health & Vitality" : "สุขภาพและการพักผ่อน", content: activeIsEn ? resolvedFortune.healthEn : resolvedFortune.healthTh, icon: Activity },
-    { id: "growth", label: activeIsEn ? "Personal Growth & Mastery" : "การเรียนรู้และเติบโต", content: activeIsEn ? resolvedFortune.growthEn : resolvedFortune.growthTh, icon: Sprout }
+    { id: "career", label: activeIsEn ? "Career & Purpose" : "การงานและเป้าหมาย", content: (activeIsEn ? resolvedFortune.careerEn : resolvedFortune.careerTh) ?? "", icon: Briefcase },
+    { id: "finance", label: activeIsEn ? "Finance & Wealth" : "การเงินและทรัพย์สิน", content: (activeIsEn ? resolvedFortune.financeEn : resolvedFortune.financeTh) ?? "", icon: Coins },
+    { id: "love", label: activeIsEn ? "Love & Harmony" : "ความรักและความสัมพันธ์", content: (activeIsEn ? resolvedFortune.loveEn : resolvedFortune.loveTh) ?? "", icon: Heart },
+    { id: "health", label: activeIsEn ? "Health & Vitality" : "สุขภาพและการพักผ่อน", content: (activeIsEn ? resolvedFortune.healthEn : resolvedFortune.healthTh) ?? "", icon: Activity },
+    { id: "growth", label: activeIsEn ? "Personal Growth & Mastery" : "การเรียนรู้และเติบโต", content: (activeIsEn ? resolvedFortune.growthEn : resolvedFortune.growthTh) ?? "", icon: Sprout }
   ] : [];
 
   return (

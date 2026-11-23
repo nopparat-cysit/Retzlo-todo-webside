@@ -6,6 +6,8 @@ import { assertProjectMember, requireUserId } from "@/lib/project-auth";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { isR2Configured, uploadToR2, R2_STORAGE_PATHS } from "@/lib/r2";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -56,6 +58,23 @@ export async function POST(request: Request, { params }: { params: { id: string 
       "retzlo:sync",
       { action: "PROJECT_COVER_UPDATED", projectId: params.id, coverImage, senderId: userId }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/projects/${params.id}/cover`,
+      requestMethod: "POST",
+      category: "PROJECT",
+      action: "PROJECT_COVER_UPDATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "PROJECT",
+      targetId: params.id,
+      summary: `Updated project cover image for project ${params.id}`,
+      metadata: { coverImage }
+    });
 
     return NextResponse.json({ coverImage });
   } catch (error) {

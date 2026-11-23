@@ -23,15 +23,13 @@ const mockLocalStorage = {
 };
 
 beforeAll(() => {
-  // @ts-expect-error mock localStorage
-  global.localStorage = mockLocalStorage;
-  // @ts-expect-error mock window
+  global.localStorage = mockLocalStorage as unknown as Storage;
   global.window = {
-    localStorage: mockLocalStorage,
+    localStorage: mockLocalStorage as unknown as Storage,
     dispatchEvent: () => true,
     addEventListener: () => {},
     removeEventListener: () => {}
-  };
+  } as unknown as Window & typeof globalThis;
 });
 
 describe("omikuji-settings", () => {

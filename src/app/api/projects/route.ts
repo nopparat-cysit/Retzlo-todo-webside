@@ -5,6 +5,8 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { projectAppearanceSchema } from "@/lib/projects/appearance";
 import { requireUserId } from "@/lib/project-auth";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 const createProjectSchema = z.object({
   name: z.string().trim().min(1).max(120),
@@ -86,6 +88,24 @@ export async function POST(request: Request) {
           take: 1
         }
       }
+    });
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: "OWNER",
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/projects",
+      requestMethod: "POST",
+      category: "PROJECT",
+      action: "PROJECT_CREATED",
+      severity: "NOTICE",
+      status: "SUCCESS",
+      targetType: "PROJECT",
+      targetId: project.id,
+      targetName: project.name,
+      summary: `Created project "${project.name}" (${project.type})`,
+      afterState: { id: project.id, name: project.name, type: project.type }
     });
 
     return NextResponse.json({ project }, { status: 201 });

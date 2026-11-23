@@ -243,7 +243,9 @@ export function FabHub() {
         className={cn(
           "fixed bottom-safe z-[120] pointer-events-none flex flex-col items-end gap-3 transition-all duration-300 ease-in-out hidden lg:flex",
           isOpen
-            ? "bottom-4 right-4 sm:bottom-6 sm:right-6"
+            ? isAiChatOpenAndSidebar
+              ? "bottom-4 right-4 sm:bottom-6 sm:right-6 lg:bottom-6 lg:right-[calc(450px+1.5rem)]"
+              : "bottom-4 right-4 sm:bottom-6 sm:right-6"
             : isAiChatOpenAndFloat
               ? "bottom-[calc(min(560px,85vh)+1.5rem)] right-4 sm:bottom-[calc(min(560px,85vh)+2rem)] sm:right-6"
               : isAiChatOpenAndSidebar
@@ -562,7 +564,7 @@ function FabDisplayPicker({
       labelledBy="fab-display-title"
       contentClassName="max-w-2xl"
     >
-      <div className="lofi-panel max-h-[88vh] w-full max-w-2xl overflow-hidden rounded-xl">
+      <div className="lofi-panel flex flex-col max-h-[88dvh] w-full max-w-2xl overflow-hidden rounded-xl">
         <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">FAB Display</p>
@@ -611,7 +613,7 @@ function FabDisplayPicker({
           ) : null}
         </div>
 
-        <div className="max-h-[54vh] overflow-y-auto p-4 scrollbar-soft">
+        <div className="min-h-0 flex-1 overflow-y-auto p-4 scrollbar-soft">
           {loading ? (
             <div className="rounded-lg border border-white/10 bg-white/[0.035] p-6 text-center text-sm text-stone-400">
               Loading display choices...
@@ -898,7 +900,7 @@ function FabCreateModal({
       contentClassName={cn("max-w-xl", mode === "diary" && "max-w-4xl")}
     >
       <form
-        className={cn("lofi-panel flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden rounded-xl p-5", mode === "diary" ? "max-w-4xl" : "max-w-xl")}
+        className={cn("lofi-panel flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-xl p-5", mode === "diary" ? "max-w-4xl" : "max-w-xl")}
         onSubmit={handleSubmit}
       >
         {/* Modal Header */}
@@ -942,7 +944,7 @@ function FabCreateModal({
         )}
 
         {!loading && mode === "note" && (
-          <div className="grid gap-4">
+          <div className="grid gap-4 min-h-0 flex-1 overflow-y-auto scrollbar-soft">
             {/* Project / Workspace Selector */}
             <div className="space-y-2 text-sm text-stone-300">
               <span>Workspace / Target</span>
@@ -1037,7 +1039,7 @@ function FabCreateModal({
         )}
 
         {!loading && mode === "diary" && (
-          <div className={cn("grid min-h-0 flex-1 gap-5 overflow-hidden", isSettingsOpen && "lg:grid-cols-[minmax(0,1fr)_18rem]")}>
+          <div className={cn("flex flex-col lg:grid min-h-0 flex-1 gap-5 overflow-y-auto lg:overflow-hidden scrollbar-soft", isSettingsOpen && "lg:grid-cols-[minmax(0,1fr)_18rem]")}>
             <section className="flex min-h-0 flex-col gap-4">
               <p className="text-xs uppercase tracking-[0.2em] text-dusk-lavender">Details</p>
               <div className="space-y-2 text-sm text-stone-300">

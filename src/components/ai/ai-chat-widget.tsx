@@ -508,7 +508,8 @@ export function AiChatWidget() {
             viewMode === "float" || isSmallScreen
               ? cn(
                   "fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[min(calc(100vw-2rem),420px)] h-[560px] max-h-[min(85vh,calc(100dvh-5.5rem))] rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-6 transition-all duration-300",
-                  isFabOpen && "sm:right-[calc(24rem+2rem)]"
+                  isFabOpen && "sm:right-[calc(24rem+2rem)]",
+                  isFabOpen && "sm:max-w-[calc(100vw-27rem)] lg:max-w-[420px]"
                 )
               : "fixed top-0 right-0 bottom-0 w-[380px] sm:w-[450px] max-w-full border-l border-theme-border rounded-none overflow-hidden animate-in fade-in slide-in-from-right-6"
           )}
@@ -590,7 +591,7 @@ export function AiChatWidget() {
           </div>
 
           {/* Messages / Empty state */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {isEmpty ? (
               <div className="flex min-h-full flex-col justify-end px-5 pb-4 pt-8">
                 <div className="mb-6">

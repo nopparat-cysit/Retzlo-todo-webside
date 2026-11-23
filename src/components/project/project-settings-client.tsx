@@ -561,7 +561,7 @@ export function ProjectSettingsClient({
                   value={selectedBoardId}
                   options={boardsList.map((b) => ({ value: b.id, label: b.name }))}
                   onValueChange={handleBoardSelect}
-                  triggerClassName="h-7 min-w-[120px] rounded-md border-theme-border bg-theme-panel text-xs font-semibold text-theme-foreground"
+                  triggerClassName="h-7 min-w-[120px] max-w-full rounded-md border-theme-border bg-theme-panel text-xs font-semibold text-theme-foreground"
                 />
               ) : (
                 <span className="text-xs font-semibold text-theme-foreground">{displayBoardName}</span>

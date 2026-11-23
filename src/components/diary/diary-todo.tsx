@@ -48,7 +48,7 @@ export function DiaryTodo({ projectId, selectedDate, tasks, days = 5 }: DiaryTod
         <div className="space-y-2 text-sm text-stone-300">
           <span>Pick day</span>
           <DatePicker
-            className="w-52"
+            className="w-full sm:w-52"
             placeholder="Pick day..."
             value={selectedDate}
             onChange={(nextDate) => nextDate && changeDate(nextDate)}

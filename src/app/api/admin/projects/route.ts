@@ -15,8 +15,10 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search")?.trim() || "";
-    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const rawPage = parseInt(searchParams.get("page") || "1", 10);
+    const page = Math.max(1, Number.isNaN(rawPage) ? 1 : rawPage);
+    const rawLimit = parseInt(searchParams.get("limit") || "20", 10);
+    const limit = Math.min(50, Math.max(1, Number.isNaN(rawLimit) ? 20 : rawLimit));
     const skip = (page - 1) * limit;
 
     const whereClause: Record<string, unknown> = {};

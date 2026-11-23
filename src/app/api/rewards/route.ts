@@ -3,6 +3,8 @@ import { z } from "zod";
 import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 const createRewardSchema = z.object({
   name: z.string().trim().min(1).max(120),
@@ -85,6 +87,23 @@ export async function POST(request: Request) {
         creatorId: userId,
         image: payload.image || null,
       },
+    });
+
+    void createAuditLog({
+      actorId: userId,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/rewards",
+      requestMethod: "POST",
+      category: "REWARDS",
+      action: "REWARD_CREATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "REWARD",
+      targetId: reward.id,
+      targetName: reward.name,
+      summary: `Created reward "${reward.name}" (${reward.price} coins)`,
+      metadata: { projectId: reward.projectId ?? undefined, price: reward.price }
     });
 
     return NextResponse.json({ reward }, { status: 201 });

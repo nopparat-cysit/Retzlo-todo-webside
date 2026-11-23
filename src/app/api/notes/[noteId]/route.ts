@@ -5,6 +5,7 @@ import { parseUpdateNotePayload } from "@/lib/notes/validation";
 import { prisma } from "@/lib/prisma";
 import {
   assertProjectMember,
+  canAccessBoard,
   canManageAuthoredItem,
   canToggleHiddenItem,
   getProjectIdForNote,
@@ -12,6 +13,8 @@ import {
 } from "@/lib/project-auth";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 function toNoteResponse(
   note: {
@@ -111,6 +114,32 @@ export async function PATCH(request: Request, { params }: { params: { noteId: st
       return jsonError("This project does not allow members to hide their own notes.", 403);
     }
 
+    if (payload.boardId) {
+      const board = await prisma.board.findUnique({
+        where: { id: payload.boardId },
+        select: { id: true, projectId: true, isPrivate: true, members: { select: { userId: true } } }
+      });
+
+      if (!board || board.projectId !== projectId) {
+        return jsonError("Board does not belong to this project.", 400);
+      }
+
+      if (!canAccessBoard(board, userId, membership.role)) {
+        return jsonError("You do not have access to this private board.", 403);
+      }
+    }
+
+    if (payload.folderId) {
+      const folder = await prisma.noteFolder.findFirst({
+        where: { id: payload.folderId, projectId },
+        select: { id: true }
+      });
+
+      if (!folder) {
+        return jsonError("Folder does not belong to this project.", 400);
+      }
+    }
+
     const { isCompleted, ...notePayload } = payload;
     const completionData =
       typeof isCompleted === "boolean" ? { completedAt: isCompleted ? new Date() : null } : {};
@@ -152,6 +181,24 @@ export async function PATCH(request: Request, { params }: { params: { noteId: st
       { action: "NOTE_UPDATED", noteId: note.id, senderId: userId }
     );
 
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/notes/${params.noteId}`,
+      requestMethod: "PATCH",
+      category: "PROJECT",
+      action: "NOTE_UPDATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "NOTE",
+      targetId: note.id,
+      targetName: note.title,
+      summary: `Updated note "${note.title}"`,
+      metadata: { title: note.title, folderId: note.folderId }
+    });
+
     return NextResponse.json({
       note: toNoteResponse(note, {
         membership,
@@ -164,7 +211,7 @@ export async function PATCH(request: Request, { params }: { params: { noteId: st
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: { noteId: string } }) {
+export async function DELETE(request: Request, { params }: { params: { noteId: string } }) {
   try {
     const userId = await requireUserId();
 
@@ -187,7 +234,9 @@ export async function DELETE(_request: Request, { params }: { params: { noteId: 
     const existingNote = await prisma.note.findUnique({
       where: { id: params.noteId },
       select: {
-        authorId: true
+        authorId: true,
+        title: true,
+        folderId: true
       }
     });
 
@@ -208,6 +257,24 @@ export async function DELETE(_request: Request, { params }: { params: { noteId: 
       "retzlo:sync",
       { action: "NOTE_DELETED", noteId: params.noteId, senderId: userId }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/notes/${params.noteId}`,
+      requestMethod: "DELETE",
+      category: "PROJECT",
+      action: "NOTE_DELETED",
+      severity: "WARNING",
+      status: "SUCCESS",
+      targetType: "NOTE",
+      targetId: params.noteId,
+      targetName: existingNote.title,
+      summary: `Deleted note "${existingNote.title}"`,
+      metadata: { title: existingNote.title, folderId: existingNote.folderId }
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

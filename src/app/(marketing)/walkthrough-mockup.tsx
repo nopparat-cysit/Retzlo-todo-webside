@@ -669,7 +669,7 @@ export function WalkthroughMockupScreen({
         {/* ── ROOM 03: INTERACTIVE CALENDAR ── */}
         {slide.id === "calendar" && (
           <div className="space-y-3.5">
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
               {calendarDays.map((d, idx) => {
                 const isSelected = idx === selectedDay;
                 return (
@@ -743,17 +743,17 @@ export function WalkthroughMockupScreen({
                           }
                         }
                       }}
-                      className="lp-spring-card w-full flex items-center justify-between p-3 rounded-xl text-left"
+                      className="lp-spring-card w-full flex items-center justify-between gap-2 p-3 rounded-xl text-left"
                       style={{
                         border: "1px solid var(--border)",
                         background: "var(--panel-strong)"
                       }}
                     >
-                      <span className="flex items-center gap-2.5 text-xs font-medium">
+                      <span className="flex min-w-0 items-center gap-2.5 text-xs font-medium">
                         {done ? (
-                          <Check size={15} className="text-emerald-600" />
+                          <Check size={15} className="shrink-0 text-emerald-600" />
                         ) : (
-                          <Circle size={15} className="opacity-50" />
+                          <Circle size={15} className="shrink-0 opacity-50" />
                         )}
                         <span
                           style={{
@@ -764,7 +764,7 @@ export function WalkthroughMockupScreen({
                           {t.title}
                         </span>
                       </span>
-                      <span className="text-[11px] font-semibold text-amber-600">
+                      <span className="shrink-0 text-[11px] font-semibold text-amber-600">
                         {t.time} · +{t.coins}c
                       </span>
                     </button>

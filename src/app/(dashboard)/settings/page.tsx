@@ -14,18 +14,18 @@ export default function GlobalSettingsPage() {
     <div className="min-h-screen bg-theme-background text-theme-foreground">
       {/* Top sticky navigation bar */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-theme-border bg-theme-panel/85 px-4 backdrop-blur-md sm:px-8">
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <Link
             href="/projects"
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition"
+            className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>กลับสู่ Projects</span>
+            <span className="hidden sm:inline">กลับสู่ Projects</span>
           </Link>
-          <div className="h-4 w-[1px] bg-theme-border" />
-          <div className="flex items-center gap-2">
-            <SettingsIcon className="h-4 w-4 text-theme-muted" />
-            <h1 className="text-sm font-semibold text-theme-foreground">
+          <div className="h-4 w-[1px] shrink-0 bg-theme-border" />
+          <div className="flex min-w-0 items-center gap-2">
+            <SettingsIcon className="h-4 w-4 shrink-0 text-theme-muted" />
+            <h1 className="truncate text-sm font-semibold text-theme-foreground">
               System Settings & Feature Desks
             </h1>
           </div>

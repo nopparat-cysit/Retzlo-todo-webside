@@ -5,6 +5,8 @@ import { jsonError, parseError } from "@/lib/api";
 import { requireUserId } from "@/lib/project-auth";
 import { AI_CREDIT_COSTS, deductUserAiCredit, getUserAiQuota } from "@/lib/ai/credits";
 import { generateTaskBreakdown } from "@/lib/ai/engine";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -58,6 +60,21 @@ export async function POST(request: Request) {
       AI_CREDIT_COSTS.BREAKDOWN,
       "BREAKDOWN"
     );
+
+    void createAuditLog({
+      actorId: userId,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/ai/breakdown",
+      requestMethod: "POST",
+      category: "AI",
+      action: "AI_TASK_BREAKDOWN",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetName: payload.title,
+      summary: `Generated AI task breakdown for "${payload.title}"`,
+      metadata: { itemCount: result.items.length, depth: payload.depth, remainingCredits: creditResult.remainingCredits }
+    });
 
     return NextResponse.json({
       ok: true,

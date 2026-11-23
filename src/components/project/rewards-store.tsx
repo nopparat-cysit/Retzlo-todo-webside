@@ -690,7 +690,7 @@ export function RewardsStore({
                 </div>
 
                 {storeMode === "project" ? (
-                  <div className="min-w-[200px] max-w-xs">
+                  <div className="w-full sm:w-auto sm:min-w-[200px] max-w-xs">
                     <FilterSelect
                       value={activeProjectId || ""}
                       options={userProjects.map((project) => ({
@@ -857,8 +857,8 @@ export function RewardsStore({
 
                 {canManageRewards && (
                   <div className="pt-2 flex flex-wrap justify-center gap-2">
-                    <Button onClick={() => setConfirmSeedPresets(true)} disabled={isSeeding}>
-                      <Sparkles className="h-4 w-4" />
+                    <Button className="whitespace-normal text-center h-auto py-2.5" onClick={() => setConfirmSeedPresets(true)} disabled={isSeeding}>
+                      <Sparkles className="h-4 w-4 shrink-0" />
                       Add All 5 Starter Rewards (คลิกเดียวเพิ่มทั้งหมด)
                     </Button>
                     <Button variant="secondary" onClick={() => setIsCreateOpen(true)}>
@@ -1451,8 +1451,8 @@ function CreateRewardModal({
       labelledBy="create-reward-title"
       contentClassName="max-w-3xl"
     >
-      <form className="lofi-panel w-full max-w-3xl rounded-2xl p-5 sm:p-6" onSubmit={onSubmit}>
-        <div className="flex items-start justify-between gap-3 border-b border-stone-200/80 dark:border-white/10 pb-4">
+      <form className="lofi-panel flex max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl p-5 sm:p-6" onSubmit={onSubmit}>
+        <div className="flex shrink-0 items-start justify-between gap-3 border-b border-stone-200/80 dark:border-white/10 pb-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber font-semibold">Catalog Editor</p>
             <h2 id="create-reward-title" className="mt-1 text-xl font-bold text-stone-900 dark:text-stone-100">
@@ -1464,7 +1464,8 @@ function CreateRewardModal({
           </button>
         </div>
 
-        <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1.2fr]">
+        <div className="mt-4 sm:mt-5 min-h-0 flex-1 overflow-y-auto pr-1 scrollbar-soft">
+        <div className="grid gap-5 lg:grid-cols-[1fr_1.2fr]">
           <div>
             <p className="text-xs uppercase tracking-[0.18em] text-stone-500 font-semibold">Quick Presets</p>
             <div className="mt-3 grid grid-cols-2 gap-2">
@@ -1654,8 +1655,9 @@ function CreateRewardModal({
             </div>
           </div>
         </div>
+        </div>
 
-        <div className="mt-6 flex justify-end gap-2 border-t border-stone-200/80 dark:border-white/10 pt-4">
+        <div className="mt-5 shrink-0 flex justify-end gap-2 border-t border-stone-200/80 dark:border-white/10 pt-4">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
@@ -1684,7 +1686,7 @@ function RejectRewardModal({
       labelledBy="reject-reward-title"
       contentClassName="max-w-md"
     >
-      <form className="lofi-panel w-full max-w-md rounded-2xl p-5" onSubmit={onSubmit}>
+      <form className="lofi-panel max-h-[calc(100dvh-2rem)] overflow-y-auto w-full max-w-md rounded-2xl p-5" onSubmit={onSubmit}>
         <div className="flex items-start justify-between gap-3 border-b border-stone-200/80 dark:border-white/10 pb-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-theme-danger font-semibold">Reject Request</p>

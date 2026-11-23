@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { assertProjectMember, canAccessBoard, getProjectIdForCard, requireUserId } from "@/lib/project-auth";
 import { triggerPusherEvent } from "@/lib/pusher/server";
 import { logBoardActivity } from "@/lib/kanban/activity-logger";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 const reorderCardsSchema = z.object({
   cardId: z.string().uuid(),
@@ -200,6 +202,27 @@ export async function PATCH(request: Request) {
         });
       }
     }
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/cards/reorder",
+      requestMethod: "PATCH",
+      category: "CARD",
+      action: "CARDS_REORDERED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "CARD",
+      targetId: payload.cardId,
+      targetName: movedCardTitle || payload.cardId,
+      summary: `Reordered card ${movedCardTitle ? `"${movedCardTitle}"` : payload.cardId}`,
+      metadata: {
+        sourceColumnId: payload.sourceColumnId,
+        destinationColumnId: payload.destinationColumnId
+      }
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

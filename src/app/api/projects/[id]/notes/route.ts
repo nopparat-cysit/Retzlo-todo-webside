@@ -3,9 +3,11 @@ import { NextResponse } from "next/server";
 import { jsonError, parseError } from "@/lib/api";
 import { parseCreateNotePayload } from "@/lib/notes/validation";
 import { prisma } from "@/lib/prisma";
-import { assertProjectMember, canToggleHiddenItem, isOwnerRole, requireUserId } from "@/lib/project-auth";
+import { assertProjectMember, canAccessBoard, canToggleHiddenItem, isOwnerRole, requireUserId } from "@/lib/project-auth";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 function toNoteResponse(
   note: {
@@ -213,6 +215,32 @@ export async function POST(request: Request, { params }: { params: { id: string 
       return jsonError("This project does not allow members to hide their own notes.", 403);
     }
 
+    if (payload.boardId) {
+      const board = await prisma.board.findUnique({
+        where: { id: payload.boardId },
+        select: { id: true, projectId: true, isPrivate: true, members: { select: { userId: true } } }
+      });
+
+      if (!board || board.projectId !== params.id) {
+        return jsonError("Board does not belong to this project.", 400);
+      }
+
+      if (!canAccessBoard(board, userId, membership.role)) {
+        return jsonError("You do not have access to this private board.", 403);
+      }
+    }
+
+    if (payload.folderId) {
+      const folder = await prisma.noteFolder.findFirst({
+        where: { id: payload.folderId, projectId: params.id },
+        select: { id: true }
+      });
+
+      if (!folder) {
+        return jsonError("Folder does not belong to this project.", 400);
+      }
+    }
+
     const note = await prisma.note.create({
       data: {
         title: payload.title,
@@ -256,6 +284,24 @@ export async function POST(request: Request, { params }: { params: { id: string 
       "retzlo:sync",
       { action: "NOTE_CREATED", noteId: note.id, senderId: userId }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/projects/${params.id}/notes`,
+      requestMethod: "POST",
+      category: "PROJECT",
+      action: "NOTE_CREATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "NOTE",
+      targetId: note.id,
+      targetName: note.title,
+      summary: `Created note "${note.title}"`,
+      metadata: { title: note.title, folderId: note.folderId, boardId: note.boardId }
+    });
 
     return NextResponse.json(
       {

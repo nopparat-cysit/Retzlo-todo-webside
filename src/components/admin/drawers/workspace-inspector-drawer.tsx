@@ -163,7 +163,7 @@ export function WorkspaceInspectorDrawer({
         </div>
 
         {/* Body */}
-        <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
+        <div className="flex-1 min-h-0 space-y-6 overflow-y-auto px-6 py-6">
           {isLoading ? (
             <div className="flex h-48 items-center justify-center">
               <span className="font-mono text-xs text-stone-400">Loading workspace telemetry...</span>
@@ -197,7 +197,7 @@ export function WorkspaceInspectorDrawer({
                   />
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] text-stone-400">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-stone-400">
                   <span className="font-mono">ID: {project.id}</span>
                   <span>Type: {project.type}</span>
                 </div>
@@ -205,7 +205,7 @@ export function WorkspaceInspectorDrawer({
 
               {/* Ownership Transfer Section */}
               <div className="space-y-3 rounded-xl border border-stone-200/80 bg-white p-4 dark:border-white/10 dark:bg-stone-900/30">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <UserCheck className="h-4 w-4 text-indigo-500" />
                     <span className="text-xs font-semibold text-stone-800 dark:text-stone-200">
@@ -255,14 +255,14 @@ export function WorkspaceInspectorDrawer({
                   {detail?.boards.map((b) => {
                     const totalCards = b.columns.reduce((sum, col) => sum + col._count.cards, 0);
                     return (
-                      <div key={b.id} className="flex items-center justify-between p-2.5 text-xs">
-                        <div>
+                      <div key={b.id} className="flex flex-wrap items-center justify-between gap-2 p-2.5 text-xs">
+                        <div className="min-w-0 flex-1">
                           <p className="font-medium text-stone-800 dark:text-stone-200">{b.name}</p>
                           <p className="text-[11px] text-stone-400">
                             {b.columns.length} columns • {b._count.members} board members
                           </p>
                         </div>
-                        <span className="rounded bg-indigo-50 px-2 py-0.5 font-mono text-[11px] font-bold text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400">
+                        <span className="shrink-0 rounded bg-indigo-50 px-2 py-0.5 font-mono text-[11px] font-bold text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400">
                           {totalCards} cards
                         </span>
                       </div>
@@ -302,7 +302,7 @@ export function WorkspaceInspectorDrawer({
                           <p className="truncate text-[10px] text-stone-400">{m.user.email}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex shrink-0 items-center gap-2">
                         <span className="font-mono text-[10px] text-amber-500">{m.coins}c</span>
                         <span
                           className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
@@ -368,7 +368,7 @@ export function WorkspaceInspectorDrawer({
             className="fixed inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setShowDeleteModal(false)}
           />
-          <div className="relative w-full max-w-md rounded-xl border border-rose-300 bg-white p-6 shadow-2xl dark:border-rose-900 dark:bg-[#121324]">
+          <div className="relative w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl border border-rose-300 bg-white p-6 shadow-2xl dark:border-rose-900 dark:bg-[#121324]">
             <div className="flex items-center gap-3">
               <div className="rounded-full bg-rose-100 p-2.5 text-rose-600 dark:bg-rose-950 dark:text-rose-400">
                 <ShieldAlert className="h-6 w-6" />

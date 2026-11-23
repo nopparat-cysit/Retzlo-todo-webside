@@ -165,7 +165,7 @@ export function AiHubTab() {
               Action Credit Unit Costs
             </h4>
           </div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             {data?.costs ? (
               Object.entries(data.costs).map(([action, cost]) => (
                 <div
@@ -187,7 +187,7 @@ export function AiHubTab() {
 
       {/* Credit Grant & User Tier Override Panel */}
       <div className="rounded-xl border border-stone-200/80 bg-white p-5 dark:border-white/10 dark:bg-[#0c0d18]">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div className="flex items-center gap-2">
             <PlusCircle className="h-4 w-4 text-indigo-500" />
             <h4 className="font-semibold text-stone-900 dark:text-white text-sm">
@@ -287,7 +287,7 @@ export function AiHubTab() {
 
       {/* Recent AI Users Table */}
       <div className="overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#0c0d18]">
-        <div className="p-4 border-b border-stone-200/80 dark:border-white/10 flex items-center justify-between">
+        <div className="p-4 border-b border-stone-200/80 dark:border-white/10 flex flex-wrap items-center justify-between gap-2">
           <h4 className="font-semibold text-stone-900 dark:text-white text-xs uppercase tracking-wider">
             Active AI Intelligence Consumers
           </h4>
@@ -297,7 +297,7 @@ export function AiHubTab() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[720px] text-left text-xs">
             <thead className="border-b border-stone-200/80 bg-stone-50/80 font-mono text-[11px] uppercase tracking-wider text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
               <tr>
                 <th className="px-4 py-3 font-semibold">User</th>

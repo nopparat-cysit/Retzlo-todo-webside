@@ -2344,7 +2344,7 @@ export default function LandingPage() {
           }}
         >
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full min-w-[640px] text-left border-collapse">
               <thead>
                 <tr
                   style={{
@@ -2444,7 +2444,7 @@ export default function LandingPage() {
           {/* Social Proof Aggregate Rating Pill */}
           <div className="pt-2 flex justify-center">
             <div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold"
+              className="inline-flex flex-wrap justify-center items-center gap-2 px-4 py-2 rounded-full text-xs font-bold"
               style={{
                 background: "var(--paper)",
                 border: "1.5px solid var(--border)",
@@ -2669,7 +2669,7 @@ export default function LandingPage() {
         {/* Standalone Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 space-y-3">
           <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black tracking-wider shadow-sm font-thai"
+            className="inline-flex flex-wrap justify-center items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black tracking-wider shadow-sm font-thai"
             style={{
               background: "#ffecb1",
               color: "#432369",
@@ -2803,7 +2803,7 @@ export default function LandingPage() {
                   <Link href={defaultDestination} className="w-full sm:w-auto">
                     <button
                       type="button"
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 sm:px-10 rounded-2xl font-black text-base sm:text-lg text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border-2 border-[#54356b] shadow-[4px_4px_0_#54356b] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#54356b] active:translate-y-0.5 cursor-pointer font-thai"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-4 sm:px-8 rounded-2xl font-black text-sm sm:text-lg text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border-2 border-[#54356b] shadow-[4px_4px_0_#54356b] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#54356b] active:translate-y-0.5 cursor-pointer font-thai"
                     >
                       <Ticket className="w-6 h-6 text-[#432369] shrink-0" />
                       <span className="tracking-wide">
@@ -3067,9 +3067,10 @@ export default function LandingPage() {
 
       {/* ── Footer ──────────────────────────────────────────────────── */}
       <footer
+        className="pb-24 md:pb-8"
         style={{
           borderTop: "1px solid var(--border)",
-          padding: "32px 0",
+          paddingTop: "32px",
           fontSize: "12px",
           color: "var(--muted)"
         }}

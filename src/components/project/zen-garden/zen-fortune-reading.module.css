@@ -150,7 +150,7 @@
 
 @media (max-width: 600px) {
   .toolbar { padding: 10px 18px; }
-  .edition { max-width: 135px; font-size: 8px; letter-spacing: .04em; }
+  .edition { flex: 1; min-width: 0; font-size: 8px; letter-spacing: .04em; }
   .toolbarActions { gap: 5px; }
   .languageGroup > button { min-width: 36px; min-height: 36px; padding: 5px 8px; }
   .bowlButton { width: 32px; }
@@ -177,6 +177,10 @@
   .copyButton, .saveButton { min-width: 0; padding: 10px 11px; font-size: 10px !important; }
   .copyButton { flex: 1; }
   .saveButton { flex: 1.45; }
+}
+
+@media (max-width: 400px) {
+  .actions { flex-wrap: wrap; }
 }
 
 @media (prefers-reduced-motion: reduce) {

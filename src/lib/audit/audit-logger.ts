@@ -81,12 +81,19 @@ const SENSITIVE_KEY_PATTERNS = [
   /token/i,
   /secret/i,
   /otp/i,
-  /auth/i,
+  /^(auth|authorization|auth_token|authtoken)$/i,
   /credential/i,
   /cookie/i,
   /creditcard/i,
   /cvv/i,
-  /privatekey/i
+  /privatekey/i,
+  /diarynotes/i,
+  /reflection/i,
+  /journal/i,
+  /apikey/i,
+  /api_key/i,
+  /salt/i,
+  /bearer/i
 ];
 
 /**

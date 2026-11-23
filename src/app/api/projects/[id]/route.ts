@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { projectAppearanceUpdateSchema } from "@/lib/projects/appearance";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 const updateProjectSchema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
@@ -80,13 +82,37 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       { action: "PROJECT_UPDATED", projectId: params.id, senderId: userId }
     );
 
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/projects/${params.id}`,
+      requestMethod: "PATCH",
+      category: "PROJECT",
+      action: "PROJECT_UPDATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "PROJECT",
+      targetId: params.id,
+      targetName: project.name,
+      summary: `Updated project "${project.name}" settings.`,
+      afterState: {
+        id: project.id,
+        name: project.name,
+        description: project.description,
+        themeColor: project.themeColor,
+        sticker: project.sticker
+      }
+    });
+
     return NextResponse.json({ project });
   } catch (error) {
     return parseError(error);
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
     const userId = await requireUserId();
 
@@ -104,13 +130,30 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
       return jsonError("Only the project owner can delete this project.", 403);
     }
 
-    await prisma.project.delete({ where: { id: params.id } });
+    const deletedProject = await prisma.project.delete({ where: { id: params.id } });
 
     await triggerPusherEvent(
       [`retzlo-project-${params.id}`, `retzlo-dashboard-${params.id}`],
       "retzlo:sync",
       { action: "PROJECT_DELETED", projectId: params.id, senderId: userId }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/projects/${params.id}`,
+      requestMethod: "DELETE",
+      category: "PROJECT",
+      action: "PROJECT_DELETED",
+      severity: "WARNING",
+      status: "SUCCESS",
+      targetType: "PROJECT",
+      targetId: params.id,
+      targetName: deletedProject?.name ?? params.id,
+      summary: `Deleted project "${deletedProject?.name ?? params.id}".`
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

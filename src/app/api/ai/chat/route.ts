@@ -13,6 +13,7 @@ import {
   validatePublicInput,
   prunePublicMessageHistory
 } from "@/lib/ai/guardrails";
+import { createAuditLog } from "@/lib/audit/audit-logger";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -20,7 +21,7 @@ export const maxDuration = 60;
 
 const chatAttachmentSchema = z.object({
   name: z.string(),
-  url: z.string().url(),
+  url: z.string().trim().url().regex(/^https?:\/\//i),
   size: z.number().optional(),
   type: z.string().optional(),
   isImage: z.boolean().optional()
@@ -28,7 +29,7 @@ const chatAttachmentSchema = z.object({
 
 const chatMessageSchema = z
   .object({
-    role: z.enum(["system", "user", "assistant"]),
+    role: z.enum(["user", "assistant"]),
     content: z.string().trim().default(""),
     attachments: z.array(chatAttachmentSchema).optional()
   })
@@ -107,7 +108,7 @@ export async function POST(request: Request) {
         messages: prunedMessages,
         tier: "public",
         apiKey: clientApiKey,
-        model: clientModel
+        model: clientApiKey ? clientModel : undefined
       });
 
       return NextResponse.json({
@@ -132,7 +133,7 @@ export async function POST(request: Request) {
         messages: prunedMessages,
         tier: "public",
         apiKey: clientApiKey,
-        model: clientModel
+        model: clientApiKey ? clientModel : undefined
       });
 
       return NextResponse.json({
@@ -259,6 +260,24 @@ ${sampleCards || "No cards created yet"}`;
         "CHAT"
       );
 
+      void createAuditLog({
+        actorId: userId,
+        actorRole: membership.role,
+        ipAddress: getClientIp(request),
+        userAgent: request.headers.get("user-agent") || null,
+        requestPath: "/api/ai/chat",
+        requestMethod: "POST",
+        category: "AI",
+        action: "AI_WORKSPACE_CHAT",
+        severity: "INFO",
+        status: "SUCCESS",
+        targetType: "PROJECT",
+        targetId: payload.projectId,
+        targetName: project.name,
+        summary: `Used AI Workspace Chat in project "${project.name}"`,
+        metadata: { projectId: payload.projectId, boardId: activeBoard?.id ?? null, hasProposal: Boolean(chatResult.proposal), remainingCredits: creditResult.remainingCredits }
+      });
+
       return NextResponse.json({
         ok: true,
         reply: chatResult.reply,
@@ -274,7 +293,7 @@ ${sampleCards || "No cards created yet"}`;
       messages: prunedMessages,
       tier: "public",
       apiKey: clientApiKey,
-      model: clientModel
+      model: clientApiKey ? clientModel : undefined
     });
 
     return NextResponse.json({

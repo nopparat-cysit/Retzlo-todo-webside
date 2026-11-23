@@ -151,7 +151,7 @@ export function ContactPageClient({ initialUser }: ContactPageClientProps) {
               <Mail className="h-5 w-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[10px] uppercase tracking-[0.25em] text-indigo-600 dark:text-dusk-amber font-bold">
                   Support & Helpdesk
                 </span>
@@ -166,7 +166,7 @@ export function ContactPageClient({ initialUser }: ContactPageClientProps) {
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={openAiChat}
@@ -242,7 +242,7 @@ export function ContactPageClient({ initialUser }: ContactPageClientProps) {
               >
                 {/* ── Template Select Section ── */}
                 <div className="space-y-2.5 rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 dark:border-dusk-lavender/20 dark:bg-dusk-lavender/5">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <label
                       htmlFor="template-select"
                       className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5"
@@ -360,7 +360,7 @@ export function ContactPageClient({ initialUser }: ContactPageClientProps) {
 
                 {/* Message Content Textarea */}
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
                       Message Details <span className="text-rose-500">*</span>
                     </label>
@@ -391,7 +391,7 @@ export function ContactPageClient({ initialUser }: ContactPageClientProps) {
                 )}
 
                 {/* Submit Button */}
-                <div className="flex items-center justify-between pt-2 border-t border-stone-200/80 dark:border-white/10">
+                <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-stone-200/80 dark:border-white/10">
                   <span className="inline-flex items-center gap-1.5 text-[11px] text-stone-500 dark:text-stone-400">
                     <Lock className="h-3.5 w-3.5 shrink-0" />
                     <span>Your information is protected under our Privacy Policy</span>

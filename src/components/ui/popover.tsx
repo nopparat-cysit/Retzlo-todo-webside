@@ -22,7 +22,7 @@ const PopoverContent = forwardRef<
       collisionPadding={collisionPadding}
       forceMount={forceMount}
       className={cn(
-        "motion-floating-in z-[740] w-72 rounded-xl border border-theme-border bg-theme-popover p-4 text-theme-foreground shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16)] outline-none backdrop-blur-xl dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
+        "motion-floating-in z-[740] w-72 max-w-[calc(100vw-1.5rem)] rounded-xl border border-theme-border bg-theme-popover p-4 text-theme-foreground shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16)] outline-none backdrop-blur-xl dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
         forceMount && "data-[state=closed]:hidden",
         className
       )}

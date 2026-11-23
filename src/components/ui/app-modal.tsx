@@ -180,7 +180,7 @@ export function AppModal({
           ref={modalContentRef}
           tabIndex={trapFocus ? -1 : undefined}
           className={cn(
-            "motion-dialog-content relative w-full",
+            "motion-dialog-content relative my-auto w-full max-h-[100dvh] sm:max-h-[calc(100dvh-2rem)]",
             trapFocus && "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-theme-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-theme-background",
             contentClassName
           )}
@@ -209,5 +209,5 @@ export function AppModal({
 }
 
 export function AppModalFooter({ className, ...props }: ComponentPropsWithoutRef<"div">) {
-  return <div className={cn("flex justify-end gap-2 border-t border-theme-border p-3.5 sm:p-5 pb-safe", className)} {...props} />;
+  return <div className={cn("flex flex-wrap justify-end gap-2 border-t border-theme-border p-3.5 sm:p-5 pb-safe", className)} {...props} />;
 }

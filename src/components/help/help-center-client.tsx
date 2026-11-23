@@ -444,31 +444,89 @@ export function HelpCenterClient() {
       <div className="mx-auto flex w-full max-w-[1600px] flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 gap-8 lg:gap-10 items-start">
         {/* ── Left Sidebar (Only in Docs view) ── */}
         {viewMode === "docs" && (
-          <aside
-            className={cn(
-              "fixed inset-y-0 left-0 z-40 w-72 transform bg-white/95 p-5 border-r border-stone-200/80 backdrop-blur-xl transition-all duration-200 ease-in-out dark:bg-ink-950/95 dark:border-white/10 lg:sticky lg:top-20 lg:z-20 lg:border-none lg:bg-transparent lg:p-0 lg:backdrop-blur-none lg:h-[calc(100vh-5.5rem)] lg:flex lg:flex-col lg:self-start",
-              isMobileSidebarOpen
-                ? "translate-x-0 shadow-2xl visible pointer-events-auto"
-                : "-translate-x-full invisible pointer-events-none lg:translate-x-0 lg:visible lg:pointer-events-auto",
-              isSidebarCollapsed ? "lg:hidden" : "lg:w-72 lg:shrink-0"
-            )}
-          >
-            {/* Mobile Sidebar Header */}
-            <div className="flex lg:hidden items-center justify-between pb-4 border-b border-stone-200 dark:border-white/10 mb-4 shrink-0">
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
-                <span className="font-bold text-sm text-stone-900 dark:text-stone-100">
-                  {isEn ? "Documentation Hub" : "ศูนย์คู่มือการใช้งาน"}
-                </span>
-              </div>
-              <button
-                type="button"
+          <>
+            {isMobileSidebarOpen && (
+              <div
+                className="lg:hidden fixed inset-0 z-40 bg-black/40"
                 onClick={() => setIsMobileSidebarOpen(false)}
-                className="p-1 rounded-lg text-stone-500 hover:bg-stone-100 dark:hover:bg-white/10"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+                aria-hidden="true"
+              />
+            )}
+            <aside
+              className={cn(
+                "fixed inset-y-0 left-0 z-50 w-72 transform bg-white/95 p-5 border-r border-stone-200/80 backdrop-blur-xl transition-all duration-200 ease-in-out dark:bg-ink-950/95 dark:border-white/10 lg:sticky lg:top-20 lg:z-20 lg:border-none lg:bg-transparent lg:p-0 lg:backdrop-blur-none lg:h-[calc(100vh-5.5rem)] lg:flex lg:flex-col lg:self-start",
+                isMobileSidebarOpen
+                  ? "translate-x-0 shadow-2xl visible pointer-events-auto"
+                  : "-translate-x-full invisible pointer-events-none lg:translate-x-0 lg:visible lg:pointer-events-auto",
+                isSidebarCollapsed ? "lg:hidden" : "lg:w-72 lg:shrink-0"
+              )}
+            >
+              {/* Mobile Sidebar Header */}
+              <div className="flex lg:hidden items-center justify-between pb-4 border-b border-stone-200 dark:border-white/10 mb-4 shrink-0">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
+                  <span className="font-bold text-sm text-stone-900 dark:text-stone-100">
+                    {isEn ? "Documentation Hub" : "ศูนย์คู่มือการใช้งาน"}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  className="p-1 rounded-lg text-stone-500 hover:bg-stone-100 dark:hover:bg-white/10"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Mobile View Mode Switcher */}
+              <div className="grid grid-cols-2 gap-1.5 pb-3 mb-3 border-b border-stone-200 dark:border-white/10 sm:hidden shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("docs")}
+                  className={cn(
+                    "flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition cursor-pointer",
+                    viewMode === "docs"
+                      ? "border border-stone-200/80 bg-stone-100 text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                      : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+                  )}
+                >
+                  <BookOpen className="h-3.5 w-3.5" />
+                  <span>{isEn ? "Docs" : "คู่มือ"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setViewMode("interactive");
+                    setIsMobileSidebarOpen(false);
+                  }}
+                  className="flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200 transition cursor-pointer"
+                >
+                  <Play className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
+                  <span>{isEn ? "Playground" : "จำลองสด"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setViewMode("shortcuts");
+                    setIsMobileSidebarOpen(false);
+                  }}
+                  className="flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200 transition cursor-pointer"
+                >
+                  <Keyboard className="h-3.5 w-3.5" />
+                  <span>{isEn ? "Shortcuts" : "คีย์ลัด"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setViewMode("faq");
+                    setIsMobileSidebarOpen(false);
+                  }}
+                  className="flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200 transition cursor-pointer"
+                >
+                  <HelpCircle className="h-3.5 w-3.5" />
+                  <span>FAQ</span>
+                </button>
+              </div>
 
             {/* Quick Filter Search Bar */}
             <div className="relative shrink-0 mb-3">
@@ -641,6 +699,7 @@ export function HelpCenterClient() {
               </div>
             </div>
           </aside>
+          </>
         )}
 
         {/* ── Main Content Area ── */}
@@ -656,11 +715,11 @@ export function HelpCenterClient() {
                 className="flex-1 min-w-0 max-w-[980px] xl:max-w-[1020px] pb-24 space-y-9 sm:space-y-10 animate-in fade-in-50 slide-in-from-bottom-1 duration-200 ease-out"
               >
                 {/* Breadcrumbs */}
-                <nav className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
+                <nav className="flex flex-wrap items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
                   <Link href="/projects" className="hover:text-stone-900 dark:hover:text-stone-200">
                     Home
                   </Link>
-                  <ChevronRight className="h-3 w-3 text-stone-400" />
+                  <ChevronRight className="h-3 w-3 shrink-0 text-stone-400" />
                   <button
                     type="button"
                     onClick={() => {
@@ -671,8 +730,8 @@ export function HelpCenterClient() {
                   >
                     Documentation
                   </button>
-                  <ChevronRight className="h-3 w-3 text-stone-400" />
-                  <span className="font-semibold text-indigo-600 dark:text-dusk-lavender truncate max-w-[200px] sm:max-w-none">
+                  <ChevronRight className="h-3 w-3 shrink-0 text-stone-400" />
+                  <span className="min-w-0 font-semibold text-indigo-600 dark:text-dusk-lavender truncate max-w-[200px] sm:max-w-none">
                     {activeTopic.title}
                   </span>
                 </nav>
@@ -1031,15 +1090,15 @@ export function HelpCenterClient() {
                       isEn={isEn}
                     />
 
-                    <div className="flex items-center justify-between rounded-2xl border border-stone-200/90 bg-stone-100/90 p-4 text-stone-900 shadow-sm dark:border-white/10 dark:bg-ink-950 dark:text-white dark:shadow-inner">
-                      <div className="flex items-center gap-2 font-mono text-xs sm:text-sm text-indigo-700 font-bold dark:text-amber-300">
-                        <Zap className="h-4 w-4 text-amber-500 dark:text-amber-400" />
-                        <span>{activeTopic.codeOrShortcut}</span>
+                    <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-stone-200/90 bg-stone-100/90 p-4 text-stone-900 shadow-sm dark:border-white/10 dark:bg-ink-950 dark:text-white dark:shadow-inner">
+                      <div className="flex min-w-0 items-center gap-2 font-mono text-xs sm:text-sm text-indigo-700 font-bold dark:text-amber-300">
+                        <Zap className="h-4 w-4 shrink-0 text-amber-500 dark:text-amber-400" />
+                        <span className="break-all">{activeTopic.codeOrShortcut}</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleCopyShortcut(activeTopic.codeOrShortcut!)}
-                        className="flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-2.5 py-1 text-xs font-semibold text-stone-700 hover:bg-stone-50 active:scale-95 transition cursor-pointer dark:border-white/20 dark:bg-white/10 dark:text-stone-200 dark:hover:bg-white/20"
+                        className="flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-2.5 py-1 text-xs font-semibold text-stone-700 hover:bg-stone-50 active:scale-95 transition cursor-pointer dark:border-white/20 dark:bg-white/10 dark:text-stone-200 dark:hover:bg-white/20"
                         title={isEn ? "Copy shortcut" : "คัดลอกคีย์ลัด"}
                       >
                         {copiedShortcut === activeTopic.codeOrShortcut ? (
@@ -1500,10 +1559,10 @@ export function HelpCenterClient() {
                 {shortcutsList.map((sc, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between gap-3 p-4 rounded-2xl border border-stone-200/80 bg-white dark:border-white/10 dark:bg-ink-950/70 shadow-sm"
+                    className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl border border-stone-200/80 bg-white dark:border-white/10 dark:bg-ink-950/70 shadow-sm"
                   >
                     <div className="min-w-0 flex-1 space-y-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <span className="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
                           {sc.title}
                         </span>

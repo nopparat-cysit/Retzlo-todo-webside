@@ -276,14 +276,14 @@ export function AiBreakdownModal({
       labelledBy="ai-breakdown-title"
       contentClassName="lofi-panel flex w-full max-w-xl flex-col overflow-hidden rounded-2xl sm:rounded-3xl border border-stone-200/90 dark:border-white/12 shadow-2xl bg-[#faf7f2] dark:bg-[#0c0d1e] text-stone-900 dark:text-stone-100 backdrop-blur-xl"
     >
-      <div className="flex flex-col overflow-hidden">
+      <div className="flex flex-col overflow-hidden max-h-[92dvh] sm:max-h-[88dvh]">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 px-5 py-4 bg-stone-100/40 dark:bg-white/[0.02]">
-          <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-2xl border border-indigo-200 dark:border-dusk-lavender/40 bg-indigo-50 dark:bg-dusk-lavender/15 text-indigo-600 dark:text-dusk-lavender shadow-sm">
+        <div className="flex items-center justify-between gap-2 border-b border-stone-200/80 dark:border-white/10 px-5 py-4 bg-stone-100/40 dark:bg-white/[0.02]">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-indigo-200 dark:border-dusk-lavender/40 bg-indigo-50 dark:bg-dusk-lavender/15 text-indigo-600 dark:text-dusk-lavender shadow-sm">
               <Sparkles className="h-5 w-5 animate-pulse text-indigo-600 dark:text-dusk-amber" />
             </div>
-            <div>
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <h2
                   id="ai-breakdown-title"
@@ -306,7 +306,7 @@ export function AiBreakdownModal({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             {credits !== null && (
               <span
                 className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 dark:border-amber-400/30 bg-amber-50 dark:bg-amber-400/10 px-2.5 py-1 text-xs font-mono font-bold text-amber-800 dark:text-amber-300 shadow-sm"
@@ -329,7 +329,7 @@ export function AiBreakdownModal({
 
         {/* STEP 1: CONFIGURE & CONFIRM BEFORE GENERATING */}
         {step === "configure" && (
-          <div className="p-5 space-y-4 text-sm max-h-[75vh] overflow-y-auto scrollbar-soft">
+          <div className="p-5 space-y-4 text-sm flex-1 min-h-0 overflow-y-auto scrollbar-soft">
             {/* Task Goal Context Card */}
             <div className="relative overflow-hidden rounded-2xl border border-stone-200/90 dark:border-white/10 bg-white dark:bg-white/[0.025] p-3.5 pl-4 shadow-sm">
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 to-indigo-600 dark:from-dusk-lavender dark:to-dusk-lavender/60" />
@@ -460,7 +460,7 @@ export function AiBreakdownModal({
               <label className="text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider text-[11px]">
                 Checklist Action
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   type="button"
                   disabled={isGenerating}
@@ -529,7 +529,7 @@ export function AiBreakdownModal({
 
         {/* STEP 2: PREVIEW & VERIFY BEFORE FINAL APPLY */}
         {step === "preview" && (
-          <div className="p-5 space-y-4 text-sm max-h-[75vh] overflow-y-auto scrollbar-soft">
+          <div className="p-5 space-y-4 text-sm flex-1 min-h-0 overflow-y-auto scrollbar-soft">
             {/* AI Summary Banner */}
             {summary && (
               <div className="rounded-2xl border border-stone-200/90 dark:border-white/10 bg-white dark:bg-white/[0.035] p-3.5 text-xs text-stone-700 dark:text-stone-300 flex items-center justify-between gap-2 shadow-sm">
@@ -615,7 +615,7 @@ export function AiBreakdownModal({
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-stone-200/80 dark:border-white/10 bg-stone-100/40 dark:bg-white/[0.015] px-5 py-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-stone-200/80 dark:border-white/10 bg-stone-100/40 dark:bg-white/[0.015] px-5 py-3.5">
           {step === "configure" ? (
             <>
               <div className="flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400">
@@ -659,7 +659,7 @@ export function AiBreakdownModal({
             </>
           ) : (
             <>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
                   variant="ghost"
@@ -689,7 +689,7 @@ export function AiBreakdownModal({
                 </Button>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
                   variant="ghost"

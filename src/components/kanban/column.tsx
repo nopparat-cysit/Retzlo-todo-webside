@@ -426,7 +426,7 @@ function KanbanColumnComponent({
         minWidth: isCollapsed || isMobileScreen ? undefined : `${MIN_COLUMN_WIDTH}px`
       }}
       className={cn(
-        "group relative flex flex-1 h-full min-h-0 sm:min-h-0 w-full sm:w-[320px] md:w-[335px] xl:w-[345px] shrink-0 sm:snap-center flex-col rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)]",
+        "group relative flex flex-1 h-full min-h-0 sm:min-h-0 w-full sm:w-[320px] md:w-[335px] xl:w-[345px] max-sm:!w-full max-sm:!min-w-0 max-sm:!max-w-full shrink-0 sm:snap-center flex-col rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)]",
         isResizing ? "transition-none select-none" : "transition duration-200",
         theme.columnClass,
         isWipExceeded && "wip-exceeded border-dusk-amber/30",
@@ -470,7 +470,7 @@ function KanbanColumnComponent({
               )}
               title={`WIP Limit: ${wipLimit} cards (${totalCards}/${wipLimit})`}
             >
-              LIMIT {wipLimit}
+              <span className="hidden min-[380px]:inline">LIMIT </span>{wipLimit}
             </span>
           )}
 
@@ -509,7 +509,7 @@ function KanbanColumnComponent({
             <Settings className="h-3.5 w-3.5" />
           </button>
           <button
-            className="grid h-7 w-7 sm:h-6 sm:w-6 place-items-center rounded-md text-stone-500 transition hover:bg-stone-200/70 hover:text-stone-800 dark:text-stone-500 dark:hover:bg-white/10 dark:hover:text-stone-300"
+            className="hidden sm:grid h-7 w-7 sm:h-6 sm:w-6 place-items-center rounded-md text-stone-500 transition hover:bg-stone-200/70 hover:text-stone-800 dark:text-stone-500 dark:hover:bg-white/10 dark:hover:text-stone-300"
             type="button"
             aria-label="Collapse column"
             title="Collapse column"

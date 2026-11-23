@@ -124,7 +124,7 @@ export function DateTimePicker({
           align={align}
           sideOffset={6}
           collisionPadding={12}
-          className="w-auto max-w-[calc(100vw-1.5rem)] p-3 shadow-xl backdrop-blur-xl border border-stone-200/90 bg-[#faf7f2]/95 dark:border-white/12 dark:bg-[#0e1025]/95 rounded-2xl z-[1200]"
+          className="w-auto max-w-[calc(100vw-1.5rem)] max-h-[min(calc(100dvh-2rem),var(--radix-popover-content-available-height))] overflow-y-auto p-3 shadow-xl backdrop-blur-xl border border-stone-200/90 bg-[#faf7f2]/95 dark:border-white/12 dark:bg-[#0e1025]/95 rounded-2xl z-[1200]"
         >
           {/* ── Switcher Tabs: Date vs Time ── */}
           <div className="mb-2.5 flex items-center gap-1 rounded-xl border border-stone-200/80 bg-stone-100/80 p-0.5 dark:border-white/10 dark:bg-white/[0.03]">

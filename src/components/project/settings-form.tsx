@@ -231,7 +231,7 @@ export function SettingsForm({
           </SettingsRow>
 
           <SettingsRow label="Cover image" description="JPG, PNG, WebP or GIF up to 5 MB.">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <div className="relative aspect-[16/9] w-28 overflow-hidden rounded-lg border border-theme-border bg-theme-paper">
                 {coverPreview ? (
                   // eslint-disable-next-line @next/next/no-img-element

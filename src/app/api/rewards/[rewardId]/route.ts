@@ -5,6 +5,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
 import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -65,7 +66,12 @@ export async function PATCH(
       category: "REWARDS",
       targetId: params.rewardId,
       targetType: "REWARD",
+      targetName: updated.name,
       actorId: userId,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/rewards/${params.rewardId}`,
+      requestMethod: "PATCH",
       summary: `Updated reward "${updated.name}"`,
       metadata: { projectId: reward.projectId ?? undefined }
     });
@@ -112,7 +118,12 @@ export async function DELETE(
       category: "REWARDS",
       targetId: params.rewardId,
       targetType: "REWARD",
+      targetName: reward.name,
       actorId: userId,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/rewards/${params.rewardId}`,
+      requestMethod: "DELETE",
       summary: `Deleted reward "${reward.name}"`,
       metadata: { projectId: reward.projectId ?? undefined }
     });

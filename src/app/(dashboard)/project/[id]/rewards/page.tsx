@@ -61,15 +61,17 @@ export default async function ProjectRewardsPage({ params }: { params: { id: str
     const isProjectAdmin = ["OWNER", "ADMIN"].includes(membership.role);
 
     return (
-      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
-        <RewardsStore
-          projectId={project.id}
-          projectName={project.name}
-          projectCoinName={project.coinName ?? undefined}
-          projectCoinSymbol={project.coinSymbol ?? undefined}
-          isProjectAdmin={isProjectAdmin}
-          userProjects={userProjects}
-        />
+      <div className="scrollbar-soft h-full min-h-0 w-full overflow-y-auto pb-20 lg:pb-0">
+        <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
+          <RewardsStore
+            projectId={project.id}
+            projectName={project.name}
+            projectCoinName={project.coinName ?? undefined}
+            projectCoinSymbol={project.coinSymbol ?? undefined}
+            isProjectAdmin={isProjectAdmin}
+            userProjects={userProjects}
+          />
+        </div>
       </div>
     );
   } catch (error) {

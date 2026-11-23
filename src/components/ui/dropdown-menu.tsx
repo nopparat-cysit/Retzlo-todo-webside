@@ -36,11 +36,12 @@ DropdownMenuSubTrigger.displayName = DropdownMenuPrimitive.SubTrigger.displayNam
 const DropdownMenuSubContent = forwardRef<
   ElementRef<typeof DropdownMenuPrimitive.SubContent>,
   ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubContent>
->(({ className, ...props }, ref) => (
+>(({ className, collisionPadding = 12, ...props }, ref) => (
   <DropdownMenuPrimitive.SubContent
     ref={ref}
+    collisionPadding={collisionPadding}
     className={cn(
-      "motion-floating-in z-[760] min-w-40 overflow-hidden rounded-xl border border-theme-border bg-theme-popover p-1.5 text-theme-foreground shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
+      "motion-floating-in z-[760] min-w-40 max-w-[calc(100vw-1.5rem)] max-h-[var(--radix-dropdown-menu-content-available-height)] overflow-y-auto overflow-x-hidden rounded-xl border border-theme-border bg-theme-popover p-1.5 text-theme-foreground shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
       className
     )}
     {...props}
@@ -51,13 +52,14 @@ DropdownMenuSubContent.displayName = DropdownMenuPrimitive.SubContent.displayNam
 const DropdownMenuContent = forwardRef<
   ElementRef<typeof DropdownMenuPrimitive.Content>,
   ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
->(({ className, sideOffset = 8, ...props }, ref) => (
+>(({ className, sideOffset = 8, collisionPadding = 12, ...props }, ref) => (
   <DropdownMenuPrimitive.Portal>
     <DropdownMenuPrimitive.Content
       ref={ref}
       sideOffset={sideOffset}
+      collisionPadding={collisionPadding}
       className={cn(
-        "motion-floating-in z-[750] min-w-44 overflow-hidden rounded-xl border border-theme-border bg-theme-popover p-1.5 text-theme-foreground shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
+        "motion-floating-in z-[750] min-w-44 max-w-[calc(100vw-1.5rem)] max-h-[var(--radix-dropdown-menu-content-available-height)] overflow-y-auto overflow-x-hidden rounded-xl border border-theme-border bg-theme-popover p-1.5 text-theme-foreground shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
         className
       )}
       {...props}

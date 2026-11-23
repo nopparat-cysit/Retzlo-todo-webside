@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 
 import { jsonError, parseError } from "@/lib/api";
-import { assertProjectMember, getProjectIdForCard, requireUserId } from "@/lib/project-auth";
+import { assertProjectMember, canAccessBoard, requireUserId } from "@/lib/project-auth";
 import { prisma } from "@/lib/prisma";
 import { triggerPusherEvent } from "@/lib/pusher/server";
 import { logBoardActivity } from "@/lib/kanban/activity-logger";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: { cardId: string; attachmentId: string } }
 ) {
   try {
@@ -23,7 +25,14 @@ export async function DELETE(
           select: {
             id: true,
             boardId: true,
-            board: { select: { id: true, projectId: true } }
+            board: {
+              select: {
+                id: true,
+                projectId: true,
+                isPrivate: true,
+                members: { select: { userId: true } }
+              }
+            }
           }
         }
       }
@@ -39,6 +48,10 @@ export async function DELETE(
     const membership = await assertProjectMember(projectId, userId);
     if (!membership) {
       return jsonError("You do not have access to this project.", 403);
+    }
+
+    if (!canAccessBoard(card.column.board, userId, membership.role)) {
+      return jsonError("You do not have access to this private board.", 403);
     }
 
     const attachment = await prisma.cardAttachment.findUnique({
@@ -75,6 +88,24 @@ export async function DELETE(
         senderId: userId
       }
     );
+
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/cards/${params.cardId}/attachments/${params.attachmentId}`,
+      requestMethod: "DELETE",
+      category: "CARD",
+      action: "CARD_ATTACHMENT_REMOVED",
+      severity: "WARNING",
+      status: "SUCCESS",
+      targetType: "CARD_ATTACHMENT",
+      targetId: params.attachmentId,
+      targetName: attachment.name,
+      summary: `Removed attachment "${attachment.name}" from card "${card.title}"`,
+      metadata: { cardId: card.id, attachmentName: attachment.name }
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

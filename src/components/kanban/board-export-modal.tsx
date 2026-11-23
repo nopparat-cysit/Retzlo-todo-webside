@@ -391,7 +391,7 @@ export function BoardExportModal({
                 <h3 className="text-sm font-semibold">Choose a format</h3>
                 <span className="text-xs text-theme-muted">Preview updates as you choose</span>
               </div>
-              <div role="group" aria-label="Export format" className="grid grid-cols-2 gap-2">
+              <div role="group" aria-label="Export format" className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2">
                 {EXPORT_FORMAT_OPTIONS.map(({ format, label, detail, icon: FormatIcon }) => {
                   const isSelected = selectedFormat === format;
                   return (
@@ -550,7 +550,7 @@ export function BoardExportModal({
           </section>
 
           <aside aria-label="Live export preview" className="flex h-[min(64dvh,620px)] min-h-[430px] flex-col border-t border-theme-border bg-theme-panel lg:h-auto lg:min-h-0 lg:border-l lg:border-t-0">
-            <div className="sticky top-0 z-10 flex shrink-0 items-center justify-between gap-2 border-b border-theme-border bg-theme-panel/95 px-3 py-2.5 backdrop-blur sm:px-4">
+            <div className="sticky top-0 z-10 flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-theme-border bg-theme-panel/95 px-3 py-2.5 backdrop-blur sm:px-4">
               <div className="min-w-0">
                 <h3 className="text-sm font-semibold">Live preview</h3>
                 <p className="truncate text-[11px] text-theme-muted">

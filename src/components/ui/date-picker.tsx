@@ -258,7 +258,7 @@ export function CalendarView({
   };
 
   return (
-    <div className={cn("w-full max-w-[280px] min-w-[260px] select-none p-1 text-xs", className)}>
+    <div className={cn("w-full max-w-[280px] min-w-[260px] select-none p-1 text-xs", "min-w-0 w-[min(280px,calc(100vw-3rem))]", className)}>
       {/* ── Calendar Navigation Header ── */}
       <div className="flex items-center justify-between pb-2.5 pt-1">
         <button
@@ -458,7 +458,7 @@ export function DatePicker({
           align={align}
           sideOffset={6}
           collisionPadding={12}
-          className="w-auto max-w-[calc(100vw-1.5rem)] p-3 shadow-xl backdrop-blur-xl border border-stone-200/90 bg-[#faf7f2]/95 dark:border-white/12 dark:bg-[#0e1025]/95 rounded-2xl z-[1200]"
+          className="w-auto max-w-[calc(100vw-1.5rem)] max-h-[min(calc(100dvh-2rem),var(--radix-popover-content-available-height))] overflow-y-auto p-3 shadow-xl backdrop-blur-xl border border-stone-200/90 bg-[#faf7f2]/95 dark:border-white/12 dark:bg-[#0e1025]/95 rounded-2xl z-[1200]"
         >
           <CalendarView
             value={value}

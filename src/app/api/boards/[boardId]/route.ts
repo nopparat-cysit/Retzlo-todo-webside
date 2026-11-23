@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { assertProjectMember, canAccessBoard, getProjectIdForBoard, isOwnerRole, requireUserId } from "@/lib/project-auth";
 import { serializeCard } from "@/lib/kanban/serialize-card";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 const updateBoardSchema = z.object({
   name: z.string().trim().min(1, "Board name cannot be empty").max(80).optional(),
@@ -164,13 +166,22 @@ export async function PATCH(request: Request, { params }: { params: { boardId: s
         });
 
         if (payload.memberUserIds.length > 0) {
-          const uniqueIds = Array.from(new Set(payload.memberUserIds));
-          await tx.boardMember.createMany({
-            data: uniqueIds.map((uid) => ({
-              boardId: params.boardId,
-              userId: uid
-            }))
+          const uniqueMemberIds = Array.from(new Set(payload.memberUserIds));
+          const validMembers = await tx.projectMember.findMany({
+            where: { projectId, userId: { in: uniqueMemberIds } },
+            select: { userId: true }
           });
+          const validSet = new Set(validMembers.map((m) => m.userId));
+          const filteredMemberIds = uniqueMemberIds.filter((uid) => validSet.has(uid));
+
+          if (filteredMemberIds.length > 0) {
+            await tx.boardMember.createMany({
+              data: filteredMemberIds.map((uid) => ({
+                boardId: params.boardId,
+                userId: uid
+              }))
+            });
+          }
         }
       }
 
@@ -200,6 +211,25 @@ export async function PATCH(request: Request, { params }: { params: { boardId: s
       { action: "BOARD_UPDATED", boardId: params.boardId, senderId: userId }
     );
 
+    void createAuditLog({
+      actorId: userId,
+      actorRole: membership.role,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: `/api/boards/${params.boardId}`,
+      requestMethod: "PATCH",
+      category: "BOARD",
+      action: "BOARD_UPDATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "BOARD",
+      targetId: updated.id,
+      targetName: updated.name,
+      summary: `Updated board "${updated.name}"`,
+      beforeState: { id: board.id, name: board.name, isPrivate: board.isPrivate },
+      afterState: { id: updated.id, name: updated.name, isPrivate: updated.isPrivate }
+    });
+
     return NextResponse.json({
       board: {
         id: updated.id,
@@ -220,7 +250,7 @@ export async function PATCH(request: Request, { params }: { params: { boardId: s
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: { boardId: string } }) {
+export async function DELETE(request: Request, { params }: { params: { boardId: string } }) {
   const userId = await requireUserId();
 
   if (!userId) {
@@ -247,15 +277,32 @@ export async function DELETE(_request: Request, { params }: { params: { boardId:
     return jsonError("Cannot delete the only board in this project.", 400);
   }
 
-  await prisma.board.delete({
+  const deletedBoard = await prisma.board.delete({
     where: { id: params.boardId }
   });
 
-    await triggerPusherEvent(
-      [`retzlo-board-${params.boardId}`, `retzlo-project-${projectId}`],
-      "retzlo:sync",
-      { action: "BOARD_DELETED", boardId: params.boardId, senderId: userId }
-    );
+  await triggerPusherEvent(
+    [`retzlo-board-${params.boardId}`, `retzlo-project-${projectId}`],
+    "retzlo:sync",
+    { action: "BOARD_DELETED", boardId: params.boardId, senderId: userId }
+  );
+
+  void createAuditLog({
+    actorId: userId,
+    actorRole: membership.role,
+    ipAddress: getClientIp(request),
+    userAgent: request.headers.get("user-agent") || null,
+    requestPath: `/api/boards/${params.boardId}`,
+    requestMethod: "DELETE",
+    category: "BOARD",
+    action: "BOARD_DELETED",
+    severity: "WARNING",
+    status: "SUCCESS",
+    targetType: "BOARD",
+    targetId: params.boardId,
+    targetName: deletedBoard?.name ?? params.boardId,
+    summary: `Deleted board "${deletedBoard?.name ?? params.boardId}"`
+  });
 
   return NextResponse.json({ success: true });
 }

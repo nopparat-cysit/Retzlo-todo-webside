@@ -123,7 +123,7 @@ export function DiaryChecklistEditor({
   }
 
   return (
-    <section data-diary-checklist-editor="routine-builder" className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-white/10 bg-ink-950/20 p-3">
+    <section data-diary-checklist-editor="routine-builder" className="flex flex-col lg:min-h-0 lg:flex-1 overflow-visible lg:overflow-hidden rounded-2xl border border-white/10 bg-ink-950/20 p-3">
       <div className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.035] px-3 py-2.5">
         <div>
           <p className="text-xs uppercase tracking-[0.18em] text-dusk-lavender">Checklist</p>
@@ -136,7 +136,7 @@ export function DiaryChecklistEditor({
       </div>
 
       <div className="mb-3 rounded-xl border border-white/10 bg-white/[0.025] p-3">
-        <div className="mb-2 flex items-center justify-between gap-3">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-[11px] uppercase tracking-[0.16em] text-dusk-amber">Default repeat</p>
             <p className="mt-1 text-[11px] text-stone-500">Used for new checklist items and diary fallback.</p>
@@ -192,7 +192,7 @@ export function DiaryChecklistEditor({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-soft">
+      <div className="lg:min-h-0 lg:flex-1 space-y-2 lg:overflow-y-auto pr-1 scrollbar-soft">
         {items.length === 0 ? (
           <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.025] p-5 text-center text-xs text-stone-500">
             No checklist items yet.
@@ -516,8 +516,8 @@ export function DiaryChecklistPreview({
   return (
     <div data-diary-checklist-preview="routine-rows" className="mt-4 overflow-hidden rounded-2xl border border-stone-200/90 bg-stone-100/60 dark:border-white/10 dark:bg-ink-950/40">
       <div className="border-b border-stone-200/80 bg-stone-100/80 px-4 py-3 dark:border-white/10 dark:bg-white/[0.035]">
-        <div className="flex items-center justify-between gap-3">
-          <div>
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+          <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-700 dark:text-stone-300">Checklist</p>
             <p className="mt-0.5 text-[11px] text-stone-500 dark:text-stone-400">Tap due rows to finish the daily routine.</p>
           </div>

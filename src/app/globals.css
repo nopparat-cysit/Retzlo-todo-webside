@@ -15,6 +15,7 @@
   --paper: rgba(255, 244, 232, 0.08);
   --paper-strong: rgba(255, 244, 232, 0.14);
   --border: rgba(245, 239, 230, 0.16);
+  --border-strong: rgba(245, 239, 230, 0.26);
   --muted: #aaa5c7;
   --accent: #d59ab3;
   --accent-2: #e5bd72;
@@ -63,6 +64,7 @@
   --paper: #f5f2eb;
   --paper-strong: #ebe6dc;
   --border: #e7e2d9;
+  --border-strong: #d6cfc4;
   --muted: #78716c;
   --accent: #7c3aed;
   --accent-2: #c48b28;
@@ -457,7 +459,7 @@ header.lofi-panel {
   }
 }
 
-/* â”€â”€ Skeleton shimmer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Skeleton shimmer ---------------------------------------- */
 .skeleton-base {
   position: relative;
   overflow: hidden;
@@ -502,7 +504,7 @@ header.lofi-panel {
   background-size: 200% 100% !important;
 }
 
-/* â”€â”€ Toast notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Toast notifications ------------------------------------- */
 .toast-enter {
   animation: toast-slide-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -537,7 +539,7 @@ header.lofi-panel {
   }
 }
 
-/* â”€â”€ Command palette â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Command palette ----------------------------------------- */
 .cmd-backdrop {
   animation: cmd-backdrop-in 180ms ease both;
 }
@@ -562,7 +564,7 @@ header.lofi-panel {
   }
 }
 
-/* â”€â”€ Card celebration particles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Card celebration particles ------------------------------ */
 .celebrate-particle {
   position: fixed;
   pointer-events: none;
@@ -582,12 +584,12 @@ header.lofi-panel {
   }
 }
 
-/* â”€â”€ Column progress bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Column progress bar ------------------------------------- */
 .column-progress-fill {
   transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* â”€â”€ Sidebar active nav item â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Sidebar active nav item --------------------------------- */
 .nav-item-active {
   border-color: rgba(169, 162, 255, 0.5) !important;
   background: rgba(169, 162, 255, 0.1) !important;
@@ -598,7 +600,7 @@ header.lofi-panel {
   color: #a9a2ff;
 }
 
-/* â”€â”€ Quick-add card inline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Quick-add card inline ----------------------------------- */
 .quick-add-enter {
   animation: quick-add-in 180ms ease both;
 }
@@ -615,7 +617,7 @@ header.lofi-panel {
   }
 }
 
-/* â”€â”€ Drag overlay tilt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Drag overlay tilt --------------------------------------- */
 .drag-tilt {
   transform: rotate(2deg);
   box-shadow:
@@ -623,7 +625,7 @@ header.lofi-panel {
     0 0 32px rgba(169, 162, 255, 0.2);
 }
 
-/* â”€â”€ Drop zone glow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Drop zone glow ------------------------------------------ */
 .drop-zone-active {
   animation: drop-glow 1.2s ease-in-out infinite alternate;
 }
@@ -633,7 +635,7 @@ header.lofi-panel {
   to   { box-shadow: 0 0 20px 2px rgba(169, 162, 255, 0.2); }
 }
 
-/* â”€â”€ Greeting fade-in â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Greeting fade-in ---------------------------------------- */
 .greeting-appear {
   animation: greeting-fade 600ms ease both;
 }
@@ -643,7 +645,7 @@ header.lofi-panel {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* â”€â”€ Empty state float â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Empty state float --------------------------------------- */
 .empty-float {
   animation: empty-float 4s ease-in-out infinite;
 }
@@ -678,7 +680,7 @@ header.lofi-panel {
   align-items: center;
   justify-items: center;
   overflow: hidden;
-  padding: 2rem 1rem;
+  padding: 4.5rem 1rem 2rem;
   background:
     /* Visible tactile drafting graph grid */
     linear-gradient(to right, rgba(169, 162, 255, 0.06) 1px, transparent 1px),
@@ -993,6 +995,7 @@ header.lofi-panel {
 }
 
 
+@media (max-width: 768px) { .auth-studio-overlay { display: none; } }
 @media (max-width: 900px) {
   .auth-planet {
     opacity: 0.5;
@@ -1282,9 +1285,7 @@ header.lofi-panel {
   }
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-   11 Premium Productivity Features Styling
-   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- 11 Premium Productivity Features Styling -- */
 
 /* Focus Mode */
 body.focus-mode aside.project-sidebar {
@@ -1370,7 +1371,7 @@ body.focus-mode .board-notes-rail {
   animation: audio-bar-3 0.7s ease-in-out infinite;
 }
 
-/* â”€â”€ Module Selector â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Module Selector -- */
 
 .module-selector-container {
   animation: landing-rise 500ms ease-out both;
@@ -1400,7 +1401,7 @@ body.focus-mode .board-notes-rail {
 .module-card:nth-child(5) { animation: landing-rise 400ms 320ms ease-out both; }
 .module-card:nth-child(6) { animation: landing-rise 400ms 400ms ease-out both; }
 
-/* â”€â”€ FAB Hub â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- FAB Hub -- */
 
 .fab-main {
   transition:
@@ -1433,7 +1434,7 @@ body.focus-mode .board-notes-rail {
   }
 }
 
-/* â”€â”€ Lofi Panel (Updated for better Retro Lofi Mood) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Lofi Panel (Updated for better Retro Lofi Mood) -- */
 .lofi-panel {
   border: 1px solid var(--border);
   background:
@@ -1471,7 +1472,7 @@ body.focus-mode .board-notes-rail {
   background-size: 48px 48px;
 }
 
-/* â”€â”€ Lofi Toggle Switch (Improved for Retro Lofi Mood) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Lofi Toggle Switch (Improved for Retro Lofi Mood) -- */
 .lofi-toggle {
   position: relative;
   display: inline-block;
@@ -1521,7 +1522,7 @@ input:checked + .lofi-slider:before {
   background-color: #090817;
 }
 
-/* â”€â”€ Enhanced Lofi Sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Enhanced Lofi Sidebar -- */
 .project-sidebar {
   background: var(--panel);
   border: 1px solid var(--border);
@@ -1536,7 +1537,7 @@ input:checked + .lofi-slider:before {
   box-shadow: none;
 }
 
-/* â”€â”€ Improved Toggle Labels and 50% Progress â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* -- Improved Toggle Labels and 50% Progress -- */
 .toggle-label {
   font-size: 0.75rem;
   color: var(--muted);
@@ -1550,9 +1551,7 @@ input:checked + .lofi-slider:before {
   margin-top: 4px;
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   RETZLO LANDING PAGE
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* -- RETZLO LANDING PAGE -- */
 
 .retzlo-nav {
   position: fixed;
@@ -1731,9 +1730,7 @@ input:checked + .lofi-slider:before {
   }
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   RETZLO ADVANCED ANIMATIONS
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* -- RETZLO ADVANCED ANIMATIONS -- */
 
 /* Grid Beams (Shooting Light Trails) */
 .retzlo-grid-beam-x {
@@ -1840,9 +1837,7 @@ input:checked + .lofi-slider:before {
   transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 300ms ease;
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   SYNTHWAVE HERO ANIMATIONS
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* -- SYNTHWAVE HERO ANIMATIONS -- */
 
 /* Star twinkle */
 .synth-star {
@@ -1853,7 +1848,7 @@ input:checked + .lofi-slider:before {
   50% { opacity: 0.2; transform: scale(0.6); }
 }
 
-/* Floating cards â€” 3 independent rhythms */
+/* Floating cards -- 3 independent rhythms */
 .synth-float-a {
   animation: synth-float-a 6s ease-in-out infinite;
 }
@@ -1878,7 +1873,7 @@ input:checked + .lofi-slider:before {
   50% { transform: translateY(-12px) rotate(4deg) translateZ(55px); }
 }
 
-/* VU bar bounce â€” 4 variants */
+/* VU bar bounce -- 4 variants */
 @keyframes synth-vu-0 {
   0% { transform: scaleY(0.3); } 100% { transform: scaleY(1); }
 }
@@ -1898,7 +1893,7 @@ input:checked + .lofi-slider:before {
   50% { opacity: 0.7; box-shadow: 0 0 40px 14px rgba(255,110,199,0.7), 0 0 90px 30px rgba(169,162,255,0.45); }
 }
 
-/* â”€â”€ Sticker Floating Animations â”€â”€ */
+/* -- Sticker Floating Animations -- */
 .sticker-float-slow {
   animation: sticker-float-slow 6s ease-in-out infinite alternate;
 }

@@ -175,7 +175,7 @@ export function SecurityTab() {
 
       {/* Admin Audit Logs Table */}
       <div className="overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#0c0d18]">
-        <div className="p-4 border-b border-stone-200/80 dark:border-white/10 flex items-center justify-between">
+        <div className="p-4 border-b border-stone-200/80 dark:border-white/10 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-indigo-500" />
             <h4 className="font-semibold text-stone-900 dark:text-white text-xs uppercase tracking-wider">
@@ -188,7 +188,7 @@ export function SecurityTab() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[760px] text-left text-xs">
             <thead className="border-b border-stone-200/80 bg-stone-50/80 font-mono text-[11px] uppercase tracking-wider text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
               <tr>
                 <th className="px-4 py-3 font-semibold">Admin Account</th>
@@ -260,7 +260,7 @@ export function SecurityTab() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[600px] text-left text-xs">
             <thead className="border-b border-stone-200/80 bg-stone-50/80 font-mono text-[11px] uppercase tracking-wider text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
               <tr>
                 <th className="px-4 py-3 font-semibold">Target Email</th>

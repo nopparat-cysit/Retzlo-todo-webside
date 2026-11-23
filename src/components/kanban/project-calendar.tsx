@@ -1212,18 +1212,18 @@ export function ProjectCalendar({
         {/* Top Control Bar Panel */}
         <Panel className="p-2 sm:p-4 shrink-0 shadow-lg">
           {/* Row 1: Month title & Navigation arrows + Upcoming chip */}
-          <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2">
             <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-1">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <div className="grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shadow-sm shrink-0">
                   <CalendarDays className="h-4 w-4" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <h2 className="text-sm sm:text-lg font-bold tracking-tight text-theme-foreground dark:text-stone-100">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                    <h2 className="text-sm sm:text-lg font-bold tracking-tight text-theme-foreground dark:text-stone-100 truncate">
                       {currentMonthLabel}
                     </h2>
-                    <span className="hidden xs:inline rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold text-dusk-amber truncate">
+                    <span className="hidden sm:inline rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold text-dusk-amber truncate">
                       {rangeLabel}
                     </span>
                   </div>
@@ -1231,7 +1231,7 @@ export function ProjectCalendar({
               </div>
 
               {/* Navigation Controls: [<] [Today] [>] */}
-              <div className="flex items-center rounded-xl border border-theme-border/50 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] p-0.5 shadow-inner">
+              <div className="flex items-center rounded-xl border border-theme-border/50 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] p-0.5 shadow-inner shrink-0">
                 <button
                   type="button"
                   onClick={() => setAnchorDate((value) => viewMode === "month" || viewMode === "list" ? shiftMonthKey(value, -1) : shiftDateKey(value, -calendarDays.length))}
@@ -1377,7 +1377,7 @@ export function ProjectCalendar({
                 { value: "list", label: "Schedule" }
               ]}
               onValueChange={(val) => setViewMode(val as CalendarViewMode)}
-              className="shrink-0"
+              className="max-w-full overflow-x-auto shrink-0"
             />
 
             {/* Filter Radix Popover */}
@@ -1920,7 +1920,7 @@ export function ProjectCalendar({
                           </div>
 
                           {cellRenderItems.length > 3 ? (
-                            <span className="shrink-0 rounded-full bg-indigo-100/80 text-indigo-700 dark:bg-dusk-lavender/10 dark:text-dusk-lavender px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold transition">
+                            <span className="hidden md:inline-flex shrink-0 rounded-full bg-indigo-100/80 text-indigo-700 dark:bg-dusk-lavender/10 dark:text-dusk-lavender px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold transition">
                               +{cellRenderItems.length - 3}<span className="hidden min-[480px]:inline"> more</span>
                             </span>
                           ) : null}
@@ -2006,7 +2006,7 @@ export function ProjectCalendar({
             )}
 
             {/* Mobile Inline Selected Day Task List (< md) */}
-            {viewMode === "month" && (
+            {viewMode !== "list" && (
               <div className="md:hidden mt-3 rounded-2xl border border-theme-border/70 dark:border-white/10 bg-white/95 dark:bg-ink-950/95 p-3.5 shadow-md">
                 {/* Header */}
                 <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-stone-200/80 dark:border-white/10">
@@ -2163,7 +2163,7 @@ export function ProjectCalendar({
           open
           onClose={() => setSelectedNoteId(null)}
           labelledBy="calendar-note-title"
-          contentClassName="lofi-panel max-w-lg rounded-lg p-5"
+          contentClassName="lofi-panel flex max-h-[90dvh] w-full max-w-lg flex-col overflow-hidden rounded-lg p-5"
         >
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
@@ -2174,7 +2174,7 @@ export function ProjectCalendar({
                 X
               </button>
             </div>
-            <p className="whitespace-pre-wrap text-sm leading-6 text-stone-300">{selectedNote.content || "No content."}</p>
+            <p className="min-h-0 flex-1 overflow-y-auto scrollbar-soft whitespace-pre-wrap text-sm leading-6 text-stone-300">{selectedNote.content || "No content."}</p>
             <div className="mt-5 flex justify-end gap-2">
               <Link
                 className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/5 px-4 text-sm font-medium text-stone-100 transition hover:border-dusk-lavender/50 hover:bg-white/10"
@@ -2192,7 +2192,7 @@ export function ProjectCalendar({
           open
           onClose={() => setIsDayModalOpen(false)}
           labelledBy="calendar-day-title"
-          contentClassName="lofi-panel flex max-h-[calc(100vh-2.5rem)] max-w-2xl w-full flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-2xl dark:border-white/10 dark:bg-ink-950"
+          contentClassName="lofi-panel flex max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-2.5rem)] max-w-2xl w-full flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-2xl dark:border-white/10 dark:bg-ink-950"
         >
           {/* Header */}
           <div className="flex items-start justify-between gap-4 border-b border-stone-200/80 px-6 py-5 bg-gradient-to-r from-indigo-50/30 to-transparent dark:border-white/10 dark:from-white/[0.03] dark:to-transparent">
@@ -2443,7 +2443,7 @@ export function ProjectCalendar({
         <AppModal
           open={Boolean(quickAddDate)}
           onClose={() => setQuickAddDate(null)}
-          contentClassName="lofi-panel flex max-h-[calc(100vh-2.5rem)] max-w-lg w-full flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-2xl dark:border-white/10 dark:bg-ink-950"
+          contentClassName="lofi-panel flex max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-2.5rem)] max-w-lg w-full flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-2xl dark:border-white/10 dark:bg-ink-950"
         >
           <div className="flex items-start justify-between gap-4 border-b border-stone-200/80 px-6 py-5 bg-gradient-to-r from-indigo-50/30 to-transparent dark:border-white/10 dark:from-white/[0.03] dark:to-transparent">
             <div>
@@ -2464,7 +2464,7 @@ export function ProjectCalendar({
             </button>
           </div>
 
-          <form onSubmit={handleQuickAddSubmit} className="space-y-4 p-6 overflow-y-auto scrollbar-soft">
+          <form onSubmit={handleQuickAddSubmit} className="min-h-0 flex-1 space-y-4 p-4 sm:p-6 overflow-y-auto scrollbar-soft">
             {/* Type Switcher */}
             <div>
               <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
@@ -2784,7 +2784,7 @@ function CalendarDiaryChecklistButton({
         {item.title}
       </span>
       {!item.isOnce && (
-        <span className="shrink-0 text-[10px] text-stone-500 dark:text-stone-400 font-mono" title={`Diary: ${item.diaryTitle}`}>
+        <span className="hidden xl:inline max-w-[72px] truncate shrink-0 text-[10px] text-stone-500 dark:text-stone-400 font-mono" title={`Diary: ${item.diaryTitle}`}>
           {item.diaryTitle}
         </span>
       )}

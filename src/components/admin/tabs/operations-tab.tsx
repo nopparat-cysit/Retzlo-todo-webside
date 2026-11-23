@@ -134,7 +134,7 @@ export function OperationsTab() {
     <div className="space-y-6">
       {/* Broadcast Manager Banner */}
       <div className="rounded-xl border border-stone-200/80 bg-white p-5 dark:border-white/10 dark:bg-[#0c0d18]">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div className="flex items-center gap-2">
             <Radio className="h-5 w-5 text-indigo-500 animate-pulse" />
             <div>
@@ -246,7 +246,7 @@ export function OperationsTab() {
               <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
                 Broadcast State
               </label>
-              <div className="mt-1 flex gap-2">
+              <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setIsActive(true)}
@@ -273,7 +273,7 @@ export function OperationsTab() {
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-2">
+          <div className="flex flex-wrap items-center justify-end gap-2 pt-2">
             {broadcast && (
               <Button
                 variant="ghost"

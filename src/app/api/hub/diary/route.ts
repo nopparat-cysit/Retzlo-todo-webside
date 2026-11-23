@@ -8,6 +8,8 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/project-auth";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
 import { parseCreateDiaryItemPayload } from "@/lib/diary/validation";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export async function GET() {
   try {
@@ -101,7 +103,7 @@ export async function POST(request: Request) {
         repeatUnit: payload.repeatUnit ?? "DAY",
         startDate: new Date(`${payload.startDate}T00:00:00.000Z`),
         checklist: payload.checklist as unknown as Prisma.InputJsonValue,
-        rewardCoins: payload.rewardCoins,
+        rewardCoins: 0,
         rewardCoinType: payload.rewardCoinType,
         rewardClaimedDates: payload.rewardClaimedDates as unknown as Prisma.InputJsonValue,
         isStarred: payload.isStarred,
@@ -113,6 +115,23 @@ export async function POST(request: Request) {
       include: {
         author: { select: { name: true, email: true } }
       }
+    });
+
+    void createAuditLog({
+      actorId: userId,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/hub/diary",
+      requestMethod: "POST",
+      category: "USER",
+      action: "PERSONAL_DIARY_CREATED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "DIARY_ITEM",
+      targetId: item.id,
+      targetName: item.title,
+      summary: `Created personal diary item "${item.title}"`,
+      metadata: { title: item.title, intervalDays: item.intervalDays, repeatUnit: item.repeatUnit }
     });
 
     return NextResponse.json(

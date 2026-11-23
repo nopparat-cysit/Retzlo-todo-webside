@@ -231,6 +231,8 @@ export interface GardenPlot {
   itemId: string | null;
   stage: 1 | 2 | 3 | 4 | 5; // 1: Seed, 2: Sprout, 3: Sapling, 4: Blooming, 5: Ancient
   waterCount: number;
+  moisture?: number;
+  plantedAt?: string | null;
 }
 
 export interface ZenGardenState {

@@ -214,7 +214,7 @@ export function CreateBoardModal({
     >
       <form
         onSubmit={handleSubmit}
-        className="max-h-[calc(100dvh-2rem)] space-y-4 overflow-y-auto rounded-2xl border border-theme-border bg-theme-panel p-4 text-theme-foreground shadow-2xl sm:p-5"
+        className="max-h-[92dvh] sm:max-h-[calc(100dvh-2rem)] space-y-4 overflow-y-auto rounded-2xl border border-theme-border bg-theme-panel p-4 text-theme-foreground shadow-2xl sm:p-5"
       >
         {/* Header */}
         <div className="flex items-start justify-between gap-3 border-b border-theme-border pb-3">
@@ -390,7 +390,7 @@ export function CreateBoardModal({
                           : "text-theme-muted hover:bg-theme-paper-strong hover:text-theme-foreground"
                       )}
                     >
-                      <div className="flex items-center gap-2 truncate">
+                      <div className="flex min-w-0 flex-1 items-center gap-2 truncate">
                         <div
                           className={cn(
                             "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
@@ -413,7 +413,7 @@ export function CreateBoardModal({
                         />
                         <span className="truncate">{displayName}</span>
                       </div>
-                      <span className="text-[10px] text-theme-muted">
+                      <span className="shrink-0 text-[10px] text-theme-muted">
                         {isSelected ? "Allowed" : "No access"}
                       </span>
                     </button>

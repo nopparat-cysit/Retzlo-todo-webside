@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { jsonError, parseError } from "@/lib/api";
-import { assertProjectMember, getProjectIdForBoard, requireUserId } from "@/lib/project-auth";
+import { assertProjectMember, canAccessBoard, requireUserId } from "@/lib/project-auth";
 import { prisma } from "@/lib/prisma";
 import { serializeCard } from "@/lib/kanban/serialize-card";
 
@@ -17,14 +17,26 @@ export async function GET(
       return jsonError("Please sign in to continue.", 401);
     }
 
-    const projectId = await getProjectIdForBoard(params.boardId);
-    if (!projectId) {
+    const board = await prisma.board.findUnique({
+      where: { id: params.boardId },
+      select: {
+        id: true,
+        projectId: true,
+        isPrivate: true,
+        members: { select: { userId: true } }
+      }
+    });
+    if (!board) {
       return jsonError("Board not found.", 404);
     }
 
-    const membership = await assertProjectMember(projectId, userId);
+    const membership = await assertProjectMember(board.projectId, userId);
     if (!membership) {
       return jsonError("You do not have access to this project.", 403);
+    }
+
+    if (!canAccessBoard(board, userId, membership.role)) {
+      return jsonError("You do not have access to this private board.", 403);
     }
 
     const archivedCards = await prisma.card.findMany({

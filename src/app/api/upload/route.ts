@@ -5,6 +5,8 @@ import { jsonError, parseError } from "@/lib/api";
 import { requireUserId } from "@/lib/project-auth";
 import { isR2Configured, uploadToR2, R2_STORAGE_PATHS } from "@/lib/r2";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { createAuditLog } from "@/lib/audit/audit-logger";
+import { getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +44,21 @@ export async function POST(request: Request) {
 
     const name = file instanceof File ? file.name : "attachment";
     const type = file.type || "application/octet-stream";
+
+    const BLOCKED_MIMES = [
+      "text/html",
+      "application/xhtml+xml",
+      "image/svg+xml",
+      "application/javascript",
+      "text/javascript"
+    ];
+    if (
+      BLOCKED_MIMES.includes(type.toLowerCase()) ||
+      /\.(html|htm|svg|xhtml|js|mjs)$/i.test(name)
+    ) {
+      return jsonError("This file type is not allowed for security reasons.", 400);
+    }
+
     const isImage = isImageFile(type, name);
     const buffer = await file.arrayBuffer();
 
@@ -53,6 +70,22 @@ export async function POST(request: Request) {
       const publicId = `${userId}_${Date.now()}_${randomUUID().slice(0, 8)}`;
       url = await uploadToCloudinary(buffer, "retzlo/chat-attachments", publicId);
     }
+
+    void createAuditLog({
+      actorId: userId,
+      ipAddress: getClientIp(request),
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/upload",
+      requestMethod: "POST",
+      category: "SYSTEM",
+      action: "FILE_UPLOADED",
+      severity: "INFO",
+      status: "SUCCESS",
+      targetType: "FILE",
+      targetName: name,
+      summary: `Uploaded file "${name}"`,
+      metadata: { name, size: file.size, type, isImage }
+    });
 
     return NextResponse.json({
       ok: true,
