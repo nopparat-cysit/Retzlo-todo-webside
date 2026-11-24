@@ -873,12 +873,15 @@ export function ProjectsDashboard({
                 <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shadow-sm">
                   <Sparkles className="h-4 w-4" />
                 </div>
-                <span className="text-sm font-bold text-stone-900 dark:text-stone-100 truncate">Workspaces</span>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-dusk-amber">Retzlo</span>
+                  <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">· Studio</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex items-center gap-1 rounded-xl border border-stone-200/80 bg-stone-100/70 p-1 dark:border-white/10 dark:bg-white/[0.035] shrink-0">
                 <LanguageSwitcher />
                 <NotificationsPopover />
-                <AiChatTrigger className="h-8 w-8 rounded-lg border border-stone-200/90 bg-white/80 dark:border-white/10 dark:bg-white/[0.04]" />
+                <AiChatTrigger />
                 {userProfile && (
                   <UserProfilePopover
                     avatar={userProfile.avatar}
@@ -1105,11 +1108,11 @@ export function ProjectsDashboard({
             {/* Sub-navigation bar when viewing active workspace boards */}
             {viewMode === "boards" && activeProject ? (
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-t border-stone-200/90 dark:border-white/10 pt-2 pb-0.5">
-                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+                <div className="grid grid-cols-3 sm:flex min-w-0 flex-1 sm:flex-wrap items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => setViewMode("boards")}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 shadow-sm dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 shadow-sm dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
                   >
                     <KanbanSquare className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
                     <span>Boards Hub</span>
@@ -1120,7 +1123,7 @@ export function ProjectsDashboard({
 
                   <Link
                     href={`/project/${activeProject.id}/calendar`}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-cyan/40 dark:hover:bg-dusk-cyan/10 dark:hover:text-dusk-cyan"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-cyan/40 dark:hover:bg-dusk-cyan/10 dark:hover:text-dusk-cyan"
                   >
                     <CalendarDays className="h-3.5 w-3.5 text-teal-600 dark:text-dusk-cyan" />
                     <span>Calendar</span>
@@ -1128,7 +1131,7 @@ export function ProjectsDashboard({
 
                   <Link
                     href={`/project/${activeProject.id}/diary`}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-amber/40 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-amber/40 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
                   >
                     <BookOpenCheck className="h-3.5 w-3.5 text-amber-500 dark:text-dusk-amber" />
                     <span>Diary</span>
@@ -1136,7 +1139,7 @@ export function ProjectsDashboard({
 
                   <Link
                     href={`/project/${activeProject.id}/notes`}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-rose/40 dark:hover:bg-dusk-rose/10 dark:hover:text-dusk-rose"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-rose/40 dark:hover:bg-dusk-rose/10 dark:hover:text-dusk-rose"
                   >
                     <FileText className="h-3.5 w-3.5 text-rose-500 dark:text-dusk-rose" />
                     <span>Notes</span>
@@ -1147,7 +1150,7 @@ export function ProjectsDashboard({
 
                   <Link
                     href={`/project/${activeProject.id}/members`}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-stone-300 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-stone-300 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
                   >
                     <Users className="h-3.5 w-3.5 text-stone-500 dark:text-stone-300" />
                     <span>Members</span>
@@ -1158,31 +1161,31 @@ export function ProjectsDashboard({
 
                   <Link
                     href={`/project/${activeProject.id}/rewards`}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-amber/40 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-amber/40 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
                   >
                     <Gift className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
                     <span>Rewards</span>
                   </Link>
                 </div>
 
-                <div className="flex shrink-0 items-center justify-end gap-1.5 border-t sm:border-t-0 sm:border-l border-stone-200/80 pt-2 sm:pt-0 sm:pl-2 dark:border-white/10">
+                <div className="grid grid-cols-2 sm:flex shrink-0 items-center gap-1.5 border-t sm:border-t-0 sm:border-l border-stone-200/80 pt-2 sm:pt-0 sm:pl-2 dark:border-white/10">
                   <button
                     type="button"
                     onClick={() => setViewMode("workspaces")}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/90 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-600 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-stone-200/90 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-600 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
                     title="View all workspaces in grid"
                   >
                     <LayoutGrid className="h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
-                    <span className="hidden sm:inline">All Workspaces</span>
+                    <span>All Workspaces</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setEditingProjectForSettings(activeProject)}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/90 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-stone-200/90 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
                   >
                     <Settings className="h-3.5 w-3.5 text-stone-500 dark:text-stone-300" />
-                    <span className="hidden sm:inline">Settings</span>
+                    <span>Settings</span>
                   </button>
                 </div>
               </div>

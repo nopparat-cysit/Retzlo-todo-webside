@@ -124,15 +124,13 @@ export function NotesPanel({
   const [editingFolder, setEditingFolder] = useState<NoteFolderItem | null>(null);
   const [deletingFolder, setDeletingFolder] = useState<NoteFolderItem | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isToolsCollapsed, setIsToolsCollapsed] = useState(false);
+  const [isToolsCollapsed, setIsToolsCollapsed] = useState(true);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(`retzlo_notes_${projectId}_tools_collapsed`);
       if (stored !== null) {
         setIsToolsCollapsed(stored === "true");
-      } else if (typeof window !== "undefined" && window.innerWidth < 768) {
-        setIsToolsCollapsed(true);
       }
     } catch {
       // ignore

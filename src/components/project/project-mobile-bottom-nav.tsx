@@ -95,7 +95,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
   return (
     <nav
       aria-label="Mobile workspace navigation"
-      className="lg:hidden fixed bottom-2.5 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[350px] max-w-[368px] mx-auto z-40 rounded-full border border-stone-200/90 bg-white/92 backdrop-blur-xl p-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.12)] dark:border-white/15 dark:bg-[#0c0e24]/92 dark:shadow-[0_16px_36px_rgba(0,0,0,0.65)] transition-all duration-300"
+      className="lg:hidden fixed bottom-2.5 inset-x-3.5 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[360px] max-w-[380px] mx-auto z-40 rounded-2xl border border-stone-200/90 bg-white/95 backdrop-blur-xl p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.12)] dark:border-white/15 dark:bg-[#0c0e24]/95 dark:shadow-[0_16px_40px_rgba(0,0,0,0.65)] transition-all duration-300"
       style={{
         bottom: "calc(0.5rem + env(safe-area-inset-bottom, 0px))",
       }}
@@ -104,7 +104,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
         {/* Animated Sliding Highlight Pill (Transfer Animation) */}
         <div
           className={cn(
-            "absolute inset-y-1.5 w-1/4 px-1 py-0.5 pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
+            "absolute inset-y-0 w-1/4 p-0.5 pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
             hasActiveTab ? "opacity-100 scale-100" : "opacity-0 scale-95"
           )}
           style={{
@@ -112,7 +112,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
           }}
           aria-hidden="true"
         >
-          <div className="w-full h-full rounded-2xl bg-gradient-to-b from-indigo-500 to-indigo-600 border border-indigo-400/30 shadow-[0_4px_12px_rgba(79,70,229,0.28)] dark:from-dusk-lavender dark:to-[#9f85f8] dark:border-white/20 dark:shadow-[0_4px_14px_rgba(167,139,250,0.35)]" />
+          <div className="w-full h-full rounded-xl bg-gradient-to-b from-indigo-500 to-indigo-600 border border-indigo-400/30 shadow-[0_4px_12px_rgba(79,70,229,0.28)] dark:from-dusk-lavender dark:to-[#9f85f8] dark:border-white/20 dark:shadow-[0_4px_14px_rgba(167,139,250,0.35)]" />
         </div>
 
         {navItems.map((item, index) => {
@@ -125,7 +125,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
               href={item.href}
               onClick={() => setOptimisticSegment(item.segment)}
               aria-current={isActive ? "page" : undefined}
-              className="relative z-10 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl select-none transition-transform duration-150 active:scale-95 cursor-pointer gap-0.5"
+              className="relative z-10 flex flex-col items-center justify-center h-12 px-1 rounded-xl select-none transition-transform duration-150 active:scale-95 cursor-pointer gap-0.5"
             >
               <div className="grid h-5 w-5 place-items-center transition-all duration-300">
                 <Icon

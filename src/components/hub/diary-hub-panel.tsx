@@ -428,7 +428,7 @@ export function DiaryItemModal({
   const [repeatUnit, setRepeatUnit] = useState<DiaryRepeatUnit>(item?.repeatUnit ?? "DAY");
   const [dueTime, setDueTime] = useState<string | null>(item?.dueTime ?? null);
   const [startDate, setStartDate] = useState(item?.startDate.slice(0, 10) ?? selectedDate);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isRewardOpen, setIsRewardOpen] = useState((item?.rewardCoins ?? 0) > 0);
   const [rewardCoins, setRewardCoins] = useState(item?.rewardCoins ?? 0);
   const [rewardCoinType, setRewardCoinType] = useState<DiaryRewardCoinType>(isPersonal ? "GLOBAL" : item?.rewardCoinType ?? "PROJECT");

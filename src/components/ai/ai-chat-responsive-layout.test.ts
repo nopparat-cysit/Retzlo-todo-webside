@@ -62,12 +62,14 @@ describe("AI Chat Responsive & Sidebar Layout", () => {
 
     // AI Trigger must use GeminiSparkleIcon and have no card box BG
     expect(triggerSource).toContain("GeminiSparkleIcon");
+    expect(triggerSource).toContain("border border-transparent");
     expect(triggerSource).not.toContain("bg-white/[0.045]");
-    expect(triggerSource).not.toContain("border-white/10");
+    expect(triggerSource).not.toContain("border border-white/10");
 
     // Help Button must have no card box BG
+    expect(helpSource).toContain("border border-transparent");
     expect(helpSource).not.toContain("bg-white/[0.045]");
-    expect(helpSource).not.toContain("border-white/10");
+    expect(helpSource).not.toContain("border border-white/10");
 
     // GeminiSparkleIcon must define rainbow gradient
     expect(iconSource).toContain("<linearGradient");

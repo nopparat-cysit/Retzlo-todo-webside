@@ -64,8 +64,8 @@ describe("KanbanBoard Focus Mode placement", () => {
 });
 
 describe("ProjectShell mobile drawer full width", () => {
-  it("expands mobile sidebar drawer to full viewport width with responsive sm/lg breakpoints", () => {
-    expect(source).toContain("w-[calc(100vw-1rem)] sm:w-80");
+  it("expands mobile sidebar drawer to proportional slide-over width with responsive sm/lg breakpoints", () => {
+    expect(source).toContain("w-[min(85vw,310px)] sm:w-80");
     expect(source).toContain("-translate-x-[calc(100%+1rem)]");
     expect(source).toContain("lg:w-auto lg:translate-x-0");
   });

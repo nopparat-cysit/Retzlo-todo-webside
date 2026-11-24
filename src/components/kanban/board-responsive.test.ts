@@ -113,7 +113,9 @@ describe("Kanban responsive and touch optimizations", () => {
   });
 
   it("styles mobile bottom navigation as floating detached pill with transfer animation", () => {
-    expect(bottomNavSource).toContain("rounded-full");
+    expect(bottomNavSource).toContain("rounded-2xl");
+    expect(bottomNavSource).toContain("rounded-xl");
+    expect(bottomNavSource).toContain("h-12");
     expect(bottomNavSource).toContain("translateX");
     expect(bottomNavSource).toContain("transition-all duration-300");
     expect(bottomNavSource).not.toContain("shadow-[0_-4px_20px_rgba(0,0,0,0.35)]");

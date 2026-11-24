@@ -477,15 +477,13 @@ export function ProjectCalendar({
   const [daySortBy, setDaySortBy] = useState<"time" | "title" | "priority">("time");
   const [isUpdateConfirmOpen, setIsUpdateConfirmOpen] = useState(false);
   const [pendingUpdatePayload, setPendingUpdatePayload] = useState<any>(null);
-  const [isToolsCollapsed, setIsToolsCollapsed] = useState(false);
+  const [isToolsCollapsed, setIsToolsCollapsed] = useState(true);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(`retzlo_calendar_${projectId}_tools_collapsed`);
       if (stored !== null) {
         setIsToolsCollapsed(stored === "true");
-      } else if (typeof window !== "undefined" && window.innerWidth < 768) {
-        setIsToolsCollapsed(true);
       }
     } catch {
       // ignore localStorage errors

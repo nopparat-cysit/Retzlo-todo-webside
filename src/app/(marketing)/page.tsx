@@ -892,71 +892,74 @@ export default function LandingPage() {
         {/* Mobile Menu Dropdown */}
         {mobileMenuOpen && (
           <div
-            className="xl:hidden px-6 py-5 space-y-3"
+            className="xl:hidden px-4 sm:px-6 py-4 space-y-3"
             style={{
               borderTop: "1px solid var(--border)",
               background: "var(--panel-strong)"
             }}
           >
-            <a
-              href="#buy"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 py-2 text-sm font-bold text-[#7858d4] dark:text-purple-300"
-            >
-              <RetroTicketIcon className="w-4 h-4 shrink-0 text-[#7858d4] dark:text-purple-300" />
-              <span>เริ่มต้นทดลองใช้ฟรี 7 วัน</span>
-            </a>
-            <a
-              href="#playground"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 py-2 text-sm font-semibold text-[var(--foreground)]"
-            >
-              <RetroMiniGameIcon className="w-4 h-4 shrink-0 text-amber-500" />
-              <span>ลองเล่นมินิเกมจำลองระบบ</span>
-            </a>
-            <a
-              href="#pain-tabs"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm"
-            >
-              ปัญหาที่อยากแก้
-            </a>
-            <a
-              href="#walkthrough"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm"
-            >
-              ทัวร์ 6 ห้องทำงาน
-            </a>
-            <a
-              href="#comparison"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm"
-            >
-              ความเหมาะสม
-            </a>
-            <a
-              href="#testimonials"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm"
-            >
-              รีวิวจากผู้ใช้จริง
-            </a>
-            <a
-              href="#faq"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm"
-            >
-              คำถามที่พบบ่อย
-            </a>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <a
+                href="#buy"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2.5 rounded-xl border border-[#7858d4]/30 bg-[#7858d4]/10 px-3.5 py-2.5 text-xs font-bold text-[#7858d4] dark:text-purple-300 transition hover:bg-[#7858d4]/15"
+              >
+                <RetroTicketIcon className="w-4 h-4 shrink-0 text-[#7858d4] dark:text-purple-300" />
+                <span>เริ่มต้นทดลองใช้ฟรี 7 วัน</span>
+              </a>
+              <a
+                href="#playground"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] transition hover:border-amber-500/40"
+              >
+                <RetroMiniGameIcon className="w-4 h-4 shrink-0 text-amber-500" />
+                <span>ลองเล่นมินิเกมจำลองระบบ</span>
+              </a>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <a
+                href="#pain-tabs"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] transition hover:border-[#7858d4]/50"
+              >
+                ปัญหาที่อยากแก้
+              </a>
+              <a
+                href="#walkthrough"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] transition hover:border-[#7858d4]/50"
+              >
+                ทัวร์ 6 ห้องทำงาน
+              </a>
+              <a
+                href="#comparison"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] transition hover:border-[#7858d4]/50"
+              >
+                ความเหมาะสม
+              </a>
+              <a
+                href="#testimonials"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] transition hover:border-[#7858d4]/50"
+              >
+                รีวิวจากผู้ใช้จริง
+              </a>
+              <a
+                href="#faq"
+                onClick={() => setMobileMenuOpen(false)}
+                className="col-span-2 rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] transition hover:border-[#7858d4]/50 text-center"
+              >
+                คำถามที่พบบ่อย
+              </a>
+            </div>
             <div
-              className="pt-3 flex flex-col gap-2"
-              style={{ borderTop: "1px solid var(--border)" }}
+              className="grid grid-cols-2 gap-2.5 pt-3 border-t border-[var(--border)]"
             >
               {currentUser ? (
                 <>
                   <Link href="/profile" onClick={() => setMobileMenuOpen(false)}>
-                    <button className="w-full py-2 text-sm text-left">
+                    <button className="w-full h-10 px-3 rounded-xl text-xs font-semibold border border-[var(--border)] bg-[var(--paper)] text-[var(--foreground)] truncate">
                       {currentUser.name || currentUser.email || "Workspace user"}
                     </button>
                   </Link>
@@ -965,7 +968,7 @@ export default function LandingPage() {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <button
-                      className="w-full py-2.5 rounded-lg text-sm font-semibold"
+                      className="w-full h-10 px-3 rounded-xl text-xs font-semibold"
                       style={{
                         background: "var(--accent)",
                         color: "var(--background)"
@@ -978,7 +981,7 @@ export default function LandingPage() {
               ) : (
                 <>
                   <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <button className="w-full py-2.5 rounded-lg text-sm font-semibold border border-stone-200 dark:border-white/10 text-theme-foreground hover:bg-theme-paper transition">
+                    <button className="w-full h-10 px-3 rounded-xl text-xs font-semibold border border-[var(--border)] bg-[var(--paper)] text-theme-foreground hover:bg-theme-paper transition">
                       Sign In
                     </button>
                   </Link>
@@ -987,7 +990,7 @@ export default function LandingPage() {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <button
-                      className="w-full py-2.5 rounded-lg text-sm font-semibold"
+                      className="w-full h-10 px-3 rounded-xl text-xs font-semibold"
                       style={{
                         background: "var(--accent)",
                         color: "var(--background)"

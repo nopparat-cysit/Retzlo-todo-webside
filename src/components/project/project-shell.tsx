@@ -164,12 +164,12 @@ export async function ProjectShell({
         aria-hidden="true"
       />
       <div className="project-shell-grid flex flex-col h-[calc(100dvh-1rem)] sm:h-[calc(100dvh-1.5rem)] min-h-0 gap-2 sm:gap-3 transition-[grid-template-columns] duration-200 lg:grid lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="project-sidebar fixed bottom-2 left-2 top-2 z-[250] flex min-h-0 w-[calc(100vw-1rem)] sm:w-80 -translate-x-[calc(100%+1rem)] flex-col overflow-hidden rounded-2xl bg-ink-950/95 p-4 shadow-2xl backdrop-blur-xl transition-all duration-300 lg:relative lg:bottom-0 lg:left-0 lg:top-0 lg:z-10 lg:w-auto lg:translate-x-0 lg:bg-transparent lg:shadow-none lg:backdrop-blur-none">
+        <aside className="project-sidebar fixed bottom-2 left-2 top-2 z-[250] flex min-h-0 w-[min(85vw,310px)] sm:w-80 -translate-x-[calc(100%+1rem)] flex-col overflow-hidden rounded-2xl bg-ink-950/95 p-4 shadow-2xl backdrop-blur-xl transition-all duration-300 lg:relative lg:bottom-0 lg:left-0 lg:top-0 lg:z-10 lg:w-auto lg:translate-x-0 lg:bg-transparent lg:shadow-none lg:backdrop-blur-none">
           <div>
             <div className="flex items-center justify-between gap-2">
               <Link
                 href="/projects"
-                className="sidebar-expanded-only inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.25em] text-dusk-amber transition-opacity hover:opacity-70 font-semibold"
+                className="sidebar-expanded-only inline-flex h-9 items-center gap-2 rounded-xl border border-stone-200/80 bg-stone-100/70 px-3 text-xs font-semibold text-stone-700 transition hover:border-indigo-300 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.045] dark:text-dusk-amber dark:hover:border-dusk-lavender/45"
                 title="Go to Workspaces & Companies"
               >
                 <Home className="h-3.5 w-3.5" />
@@ -185,20 +185,22 @@ export async function ProjectShell({
               </label>
             </div>
 
-            <div className="mt-2 flex items-center gap-2">
-              <span aria-hidden="true" className={`inline-block h-2 w-2 shrink-0 rounded-full ${dotColor}`} />
-              <h1 className="sidebar-expanded-only text-2xl font-semibold leading-tight text-stone-100">
-                {project.name}
-              </h1>
-            </div>
+            <div className="sidebar-expanded-only mt-3 rounded-xl border border-stone-200/80 bg-stone-50/70 p-3 dark:border-white/10 dark:bg-white/[0.03] space-y-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <span aria-hidden="true" className={`inline-block h-2 w-2 shrink-0 rounded-full ${dotColor}`} />
+                <h1 className="text-lg font-bold leading-snug text-stone-900 dark:text-stone-100 truncate">
+                  {project.name}
+                </h1>
+              </div>
 
-            <CompanyProfileModal
-              projectName={project.name}
-              description={project.description}
-            />
+              <CompanyProfileModal
+                projectName={project.name}
+                description={project.description}
+              />
 
-            <div className="sidebar-expanded-only mt-3">
-              <ProjectSidebarGreeting userName={userName} />
+              <div>
+                <ProjectSidebarGreeting userName={userName} />
+              </div>
             </div>
           </div>
 
@@ -216,7 +218,14 @@ export async function ProjectShell({
             />
           </div>
 
-          <div className="mt-auto space-y-3 border-t border-stone-200/80 pt-4 dark:border-white/5">
+          <div className="mt-auto space-y-2.5 border-t border-stone-200/80 pt-3.5 dark:border-white/5">
+            <div className="sidebar-expanded-only flex sm:hidden items-center justify-between gap-2 rounded-xl border border-stone-200/80 bg-stone-100/60 p-1.5 dark:border-white/10 dark:bg-white/[0.03]">
+              <ProjectTopbarTools />
+              <div className="flex items-center gap-1.5">
+                <FocusModeToggle />
+                <LanguageSwitcher />
+              </div>
+            </div>
             <ProjectNavLink {...settingsLink} />
             <CommandPaletteTrigger variant="sidebar" />
           </div>
@@ -253,7 +262,7 @@ export async function ProjectShell({
                 <h2 className="truncate text-sm sm:text-base font-semibold text-stone-100 max-w-[120px] min-[400px]:max-w-[160px] sm:max-w-full 2xl:max-w-none">{project.name}</h2>
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <div className="flex shrink-0 items-center gap-1 sm:gap-1.5 rounded-xl border border-stone-200/80 bg-stone-100/60 p-1 dark:border-white/10 dark:bg-white/[0.03]">
               <div className="hidden sm:inline-flex"><ProjectTopbarTools /></div>
               <div className="hidden sm:inline-flex"><FocusModeToggle /></div>
               <div className="hidden 2xl:inline-flex"><CommandPaletteTrigger variant="topbar" /></div>

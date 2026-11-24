@@ -96,7 +96,7 @@ function QuickCreateModal({
 }) {
   const [color, setColor] = useState<CardColor>("DEFAULT");
   const [isHidden, setIsHidden] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [intervalDays, setIntervalDays] = useState(1);
   const [diaryStartDate, setDiaryStartDate] = useState(new Date().toISOString().slice(0, 10));
   const [checklist, setChecklist] = useState<DiaryChecklistItem[]>([]);

@@ -475,14 +475,14 @@ export function DiaryChecklistPreview({
   selectedDate,
   value
 }: DiaryChecklistPreviewProps) {
-  const [isDetailsHidden, setIsDetailsHidden] = useState(false);
+  const [isDetailsHidden, setIsDetailsHidden] = useState(true);
   const [expandedItemIds, setExpandedItemIds] = useState<string[]>([]);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem("retzlo_diary_hide_checklist_details");
-      if (stored === "true") {
-        setIsDetailsHidden(true);
+      if (stored !== null) {
+        setIsDetailsHidden(stored === "true");
       }
     } catch {
       // ignore localStorage errors

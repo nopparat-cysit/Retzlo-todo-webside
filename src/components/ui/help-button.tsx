@@ -46,7 +46,7 @@ export function HelpButton({ className }: HelpButtonProps) {
           <button
             type="button"
             className={cn(
-              "relative grid h-9 w-9 shrink-0 place-items-center rounded-xl text-stone-500 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-400 dark:hover:text-stone-100 dark:hover:bg-white/10 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/50 active:scale-95 cursor-pointer",
+              "relative grid h-8 w-8 sm:h-8.5 sm:w-8.5 shrink-0 place-items-center rounded-lg border border-transparent text-stone-500 hover:border-stone-200/80 hover:bg-white hover:text-stone-900 dark:text-stone-400 dark:hover:border-white/10 dark:hover:bg-white/10 dark:hover:text-stone-100 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/50 active:scale-95 cursor-pointer",
               className
             )}
             aria-label="System Info, Help, and Contact"

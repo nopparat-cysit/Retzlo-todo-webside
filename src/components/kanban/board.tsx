@@ -242,7 +242,7 @@ export function KanbanBoard({
   const mutationLockUntilRef = useRef<number>(0);
   const isPointerInteractingRef = useRef<boolean>(false);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
-  const [isToolsCollapsed, setIsToolsCollapsed] = useState(false);
+  const [isToolsCollapsed, setIsToolsCollapsed] = useState(true);
   const [activeMobileColumnId, setActiveMobileColumnId] = useState<string | null>(null);
   const [movingCard, setMovingCard] = useState<{ card: Card; columnId: string } | null>(null);
   const columnsContainerRef = useRef<HTMLDivElement | null>(null);
@@ -252,8 +252,6 @@ export function KanbanBoard({
       const stored = localStorage.getItem(`retzlo_board_${board.id}_tools_collapsed`);
       if (stored !== null) {
         setIsToolsCollapsed(stored === "true");
-      } else if (typeof window !== "undefined" && window.innerWidth < 768) {
-        setIsToolsCollapsed(true);
       }
     } catch {
       // ignore localStorage errors

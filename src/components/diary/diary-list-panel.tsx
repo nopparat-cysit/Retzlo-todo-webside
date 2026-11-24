@@ -116,15 +116,13 @@ export function DiaryListPanel({
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isUpdateConfirmOpen, setIsUpdateConfirmOpen] = useState(false);
   const [pendingUpdatePayload, setPendingUpdatePayload] = useState<any>(null);
-  const [isToolsCollapsed, setIsToolsCollapsed] = useState(false);
+  const [isToolsCollapsed, setIsToolsCollapsed] = useState(true);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(`retzlo_diary_${projectId}_tools_collapsed`);
       if (stored !== null) {
         setIsToolsCollapsed(stored === "true");
-      } else if (typeof window !== "undefined" && window.innerWidth < 768) {
-        setIsToolsCollapsed(true);
       }
     } catch {
       // ignore localStorage errors
@@ -871,9 +869,9 @@ function DiaryFocusCard({
 }) {
   const { toast } = useToast();
   const [newStepLabel, setNewStepLabel] = useState("");
-  const [isChecklistDetailsHidden, setIsChecklistDetailsHidden] = useState(false);
+  const [isChecklistDetailsHidden, setIsChecklistDetailsHidden] = useState(true);
   const [expandedItemIds, setExpandedItemIds] = useState<string[]>([]);
-  const [isBannerCollapsed, setIsBannerCollapsed] = useState(false);
+  const [isBannerCollapsed, setIsBannerCollapsed] = useState(true);
   const colorMeta = getCardColorMeta(item.color);
   const lofiSticker = getDiaryLofiSticker(item.color);
 
@@ -903,8 +901,8 @@ function DiaryFocusCard({
   useEffect(() => {
     try {
       const stored = localStorage.getItem("retzlo_diary_hide_checklist_details");
-      if (stored === "true") {
-        setIsChecklistDetailsHidden(true);
+      if (stored !== null) {
+        setIsChecklistDetailsHidden(stored === "true");
       }
     } catch {
       // ignore localStorage errors
@@ -1574,7 +1572,7 @@ function DiaryItemModal({
   const [intervalDays, setIntervalDays] = useState(item?.intervalDays ?? 1);
   const [repeatUnit, setRepeatUnit] = useState<"DAY" | "MONTH">(item?.repeatUnit === "MONTH" ? "MONTH" : "DAY");
   const [startDate, setStartDate] = useState(item?.startDate.slice(0, 10) ?? selectedDate);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isRewardOpen, setIsRewardOpen] = useState((item?.rewardCoins ?? 0) > 0);
   const [rewardCoins, setRewardCoins] = useState(item?.rewardCoins ?? 0);
   const [rewardCoinType, setRewardCoinType] = useState<DiaryRewardCoinType>(item?.rewardCoinType ?? "PROJECT");

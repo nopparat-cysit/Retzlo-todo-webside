@@ -1251,4 +1251,15 @@ Template:
   - Added mobile View Mode switcher (`Docs`, `Playground`, `Shortcuts`, `FAQ`) and backdrop inside `HelpCenterClient` mobile sidebar, enabled inline day task list for mobile Calendar Week/3-Days views (`viewMode !== "list"`), prevented SSR 335px column width overflow on `< sm` via `max-sm:!w-full`, hid `.auth-studio-overlay` on `< 768px`, and added `min-w-[...]` horizontal scroll guards to all Admin Portal tables.
 - Verification: `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors), `npx vitest run` (124/124 test files, 760 tests passed), and `npm run build` (43/43 routes).
 
+### 2026-11-24 - Responsive Navigation Menus Redesign & Default-Collapsed Details
+- Coverage: `src/components/project/project-mobile-bottom-nav.tsx`, `src/components/project/project-shell.tsx`, `src/components/project/projects-dashboard.tsx`, `src/components/notifications/notifications-popover.tsx`, `src/components/ai/ai-chat-trigger.tsx`, `src/components/ui/help-button.tsx`, `src/app/(marketing)/page.tsx`, and collapsible detail/tool drawers across `board.tsx`, `project-calendar.tsx`, `diary-list-panel.tsx`, `diary-checklist.tsx`, `notes-panel.tsx`, `diary-hub-panel.tsx`, `fab-hub.tsx`, `project-quick-hub.tsx`, and `board-sidebar-dropdown.tsx`.
+- Responsive Menu & Visual Balance Updates:
+  - Fixed vertical height mismatch in `ProjectMobileBottomNav` by replacing `inset-y-1.5 ... py-0.5` with `inset-y-0 w-1/4 p-0.5`, pairing a `rounded-2xl` outer dock with a concentric `rounded-xl` highlight pill and fixed `h-12` (`48px`) tab links.
+  - Updated `ProjectShell` mobile slide-over drawer to `w-[min(85vw,310px)] sm:w-80`, structured the project identity block into a bordered card, added a mobile quick-tools footer bar (`ProjectTopbarTools`, `FocusModeToggle`, `LanguageSwitcher`), and grouped topbar right-hand utility triggers into a unified capsule dock with uniform `h-8 w-8 sm:h-8.5 sm:w-8.5 rounded-lg` buttons.
+  - Replaced duplicate `"Workspaces"` mobile utility text in `ProjectsDashboard` with `Retzlo · Studio`, arranged the 6 workspace module pills in a symmetrical `grid-cols-3` mobile grid, and styled `All Workspaces` + `Settings` as a balanced `grid-cols-2` row with visible labels.
+  - Redesigned the Marketing mobile dropdown menu into featured highlight cards, a 2-column section navigation grid, and a 2-column CTA footer.
+  - Configured all 11 collapsible detail/tool/setting states across the workspace views to default to closed/collapsed on initial load.
+- Verification: `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors), and `npx vitest run` (124/124 test files, 760 tests passed).
+
+
 

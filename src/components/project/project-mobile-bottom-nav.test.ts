@@ -9,9 +9,9 @@ describe("ProjectMobileBottomNav floating detached and transfer animation", () =
   );
 
   it("renders floating detached pill container with responsive centered positioning and safe area offset", () => {
-    expect(source).toContain("fixed bottom-2.5 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[350px] max-w-[368px]");
-    expect(source).toContain("rounded-full border border-stone-200/90 bg-white/92 backdrop-blur-xl p-1.5");
-    expect(source).toContain("dark:border-white/15 dark:bg-[#0c0e24]/92");
+    expect(source).toContain("fixed bottom-2.5 inset-x-3.5 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[360px] max-w-[380px]");
+    expect(source).toContain("rounded-2xl border border-stone-200/90 bg-white/95 backdrop-blur-xl p-1.5");
+    expect(source).toContain("dark:border-white/15 dark:bg-[#0c0e24]/95");
     expect(source).toContain("bottom: \"calc(0.5rem + env(safe-area-inset-bottom, 0px))\"");
   });
 
@@ -19,8 +19,9 @@ describe("ProjectMobileBottomNav floating detached and transfer animation", () =
     expect(source).toContain("transform: `translateX(${Math.max(0, activeIndex) * 100}%)`");
     expect(source).toContain("transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]");
     expect(source).toContain("bg-gradient-to-b from-indigo-500 to-indigo-600 border border-indigo-400/30");
-    expect(source).toContain("rounded-2xl");
-    expect(source).toContain("inset-y-1.5 w-1/4 px-1 py-0.5");
+    expect(source).toContain("rounded-xl");
+    expect(source).toContain("inset-y-0 w-1/4 p-0.5");
+    expect(source).toContain("h-12");
   });
 
   it("provides optimistic active state updates and tactile click feedback with high-contrast tokens", () => {

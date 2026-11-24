@@ -752,7 +752,7 @@ function FabCreateModal({
   
   // Diary specific states
   const [diaryStartDate, setDiaryStartDate] = useState(new Date().toISOString().slice(0, 10));
-  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [diaryIntervalDays, setDiaryIntervalDays] = useState(1);
   const [diaryChecklist, setDiaryChecklist] = useState<DiaryChecklistItem[]>([]);
   const [isHidden, setIsHidden] = useState(false);

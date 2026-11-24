@@ -58,7 +58,7 @@ export function BoardSidebarDropdown({
   const searchParams = useSearchParams();
   const { toast } = useToast();
 
-  const [isExpanded, setIsExpanded] = useState<boolean>(true);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [targetSettingsBoard, setTargetSettingsBoard] = useState<BoardTabItem | null>(null);
   const [settingsInitialTab, setSettingsInitialTab] = useState<"general" | "access">("general");
