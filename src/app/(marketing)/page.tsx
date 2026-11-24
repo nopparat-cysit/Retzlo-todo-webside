@@ -898,11 +898,20 @@ export default function LandingPage() {
               background: "var(--panel-strong)"
             }}
           >
+            <div className="flex items-center justify-between pb-2 border-b border-[var(--border)]">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[var(--muted)]">
+                SIDE A // STUDIO NAVIGATION
+              </span>
+              <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold text-[#7858d4] dark:text-purple-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                READY
+              </span>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <a
                 href="#buy"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2.5 rounded-xl border border-[#7858d4]/30 bg-[#7858d4]/10 px-3.5 py-2.5 text-xs font-bold text-[#7858d4] dark:text-purple-300 transition hover:bg-[#7858d4]/15"
+                className="flex items-center gap-2.5 rounded-xl border border-[#7858d4]/30 bg-[#7858d4]/10 px-3.5 py-2.5 text-xs font-bold text-[#7858d4] dark:text-purple-300 shadow-[2px_2px_0_rgba(84,53,107,0.1)] transition hover:bg-[#7858d4]/15"
               >
                 <RetroTicketIcon className="w-4 h-4 shrink-0 text-[#7858d4] dark:text-purple-300" />
                 <span>เริ่มต้นทดลองใช้ฟรี 7 วัน</span>
@@ -910,7 +919,7 @@ export default function LandingPage() {
               <a
                 href="#playground"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] transition hover:border-amber-500/40"
+                className="flex items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] shadow-[2px_2px_0_rgba(84,53,107,0.1)] transition hover:border-amber-500/40"
               >
                 <RetroMiniGameIcon className="w-4 h-4 shrink-0 text-amber-500" />
                 <span>ลองเล่นมินิเกมจำลองระบบ</span>
@@ -920,37 +929,52 @@ export default function LandingPage() {
               <a
                 href="#pain-tabs"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] transition hover:border-[#7858d4]/50"
+                className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3 py-2.5 text-xs font-semibold text-[var(--foreground)] shadow-[2px_2px_0_rgba(84,53,107,0.1)] transition hover:border-[#7858d4]/50"
               >
-                ปัญหาที่อยากแก้
+                <span className="rounded bg-[#7858d4]/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#7858d4] dark:text-purple-300">
+                  01
+                </span>
+                <span className="truncate">ปัญหาที่อยากแก้</span>
               </a>
               <a
                 href="#walkthrough"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] transition hover:border-[#7858d4]/50"
+                className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3 py-2.5 text-xs font-semibold text-[var(--foreground)] shadow-[2px_2px_0_rgba(84,53,107,0.1)] transition hover:border-[#7858d4]/50"
               >
-                ทัวร์ 6 ห้องทำงาน
+                <span className="rounded bg-[#7858d4]/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#7858d4] dark:text-purple-300">
+                  02
+                </span>
+                <span className="truncate">ทัวร์ 6 ห้องทำงาน</span>
               </a>
               <a
                 href="#comparison"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] transition hover:border-[#7858d4]/50"
+                className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3 py-2.5 text-xs font-semibold text-[var(--foreground)] shadow-[2px_2px_0_rgba(84,53,107,0.1)] transition hover:border-[#7858d4]/50"
               >
-                ความเหมาะสม
+                <span className="rounded bg-[#7858d4]/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#7858d4] dark:text-purple-300">
+                  03
+                </span>
+                <span className="truncate">ความเหมาะสม</span>
               </a>
               <a
                 href="#testimonials"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] transition hover:border-[#7858d4]/50"
+                className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3 py-2.5 text-xs font-semibold text-[var(--foreground)] shadow-[2px_2px_0_rgba(84,53,107,0.1)] transition hover:border-[#7858d4]/50"
               >
-                รีวิวจากผู้ใช้จริง
+                <span className="rounded bg-[#7858d4]/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#7858d4] dark:text-purple-300">
+                  04
+                </span>
+                <span className="truncate">รีวิวจากผู้ใช้จริง</span>
               </a>
               <a
                 href="#faq"
                 onClick={() => setMobileMenuOpen(false)}
-                className="col-span-2 rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] transition hover:border-[#7858d4]/50 text-center"
+                className="col-span-2 flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] shadow-[2px_2px_0_rgba(84,53,107,0.1)] transition hover:border-[#7858d4]/50 text-center"
               >
-                คำถามที่พบบ่อย
+                <span className="rounded bg-[#7858d4]/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#7858d4] dark:text-purple-300">
+                  05
+                </span>
+                <span>คำถามที่พบบ่อย</span>
               </a>
             </div>
             <div

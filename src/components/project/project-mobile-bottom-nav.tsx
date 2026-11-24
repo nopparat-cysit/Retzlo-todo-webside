@@ -62,24 +62,32 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
         href: boardHref,
         segment: "board",
         icon: KanbanSquare,
+        code: "01",
+        idleIconClass: "text-indigo-500/80 dark:text-dusk-lavender/80",
       },
       {
         label: "Calendar",
         href: calendarHref,
         segment: "calendar",
         icon: CalendarDays,
+        code: "02",
+        idleIconClass: "text-teal-600/80 dark:text-dusk-cyan/80",
       },
       {
         label: "Diary",
         href: diaryHref,
         segment: "diary",
         icon: BookOpenCheck,
+        code: "03",
+        idleIconClass: "text-amber-600/80 dark:text-dusk-amber/80",
       },
       {
         label: "Notes",
         href: notesHref,
         segment: "notes",
         icon: FileText,
+        code: "04",
+        idleIconClass: "text-rose-500/80 dark:text-dusk-rose/80",
       },
     ];
   }, [targetId, savedBoardId]);
@@ -95,7 +103,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
   return (
     <nav
       aria-label="Mobile workspace navigation"
-      className="lg:hidden fixed bottom-2.5 inset-x-3.5 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[360px] max-w-[380px] mx-auto z-40 rounded-2xl border border-stone-200/90 bg-white/95 backdrop-blur-xl p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.12)] dark:border-white/15 dark:bg-[#0c0e24]/95 dark:shadow-[0_16px_40px_rgba(0,0,0,0.65)] transition-all duration-300"
+      className="lg:hidden fixed bottom-2.5 inset-x-3.5 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[360px] max-w-[380px] mx-auto z-40 rounded-2xl border border-stone-200/90 bg-white/95 backdrop-blur-xl p-1.5 ring-1 ring-stone-900/5 dark:ring-white/10 shadow-[0_14px_34px_rgba(8,8,23,0.16),inset_0_1px_0_rgba(255,255,255,0.9)] dark:border-white/15 dark:bg-[#0c0e24]/95 dark:shadow-[0_18px_42px_rgba(0,0,0,0.75),inset_0_1px_0_rgba(255,255,255,0.12)] transition-all duration-300"
       style={{
         bottom: "calc(0.5rem + env(safe-area-inset-bottom, 0px))",
       }}
@@ -112,7 +120,9 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
           }}
           aria-hidden="true"
         >
-          <div className="w-full h-full rounded-xl bg-gradient-to-b from-indigo-500 to-indigo-600 border border-indigo-400/30 shadow-[0_4px_12px_rgba(79,70,229,0.28)] dark:from-dusk-lavender dark:to-[#9f85f8] dark:border-white/20 dark:shadow-[0_4px_14px_rgba(167,139,250,0.35)]" />
+          <div className="relative w-full h-full rounded-xl bg-gradient-to-b from-indigo-500 to-indigo-600 border border-indigo-400/30 shadow-[0_4px_12px_rgba(79,70,229,0.32),inset_0_1px_0_rgba(255,255,255,0.35)] dark:from-dusk-lavender dark:to-[#9f85f8] dark:border-white/25 dark:shadow-[0_4px_16px_rgba(167,139,250,0.4),inset_0_1px_0_rgba(255,255,255,0.45)] overflow-hidden">
+            <span className="absolute top-1 left-1/2 -translate-x-1/2 h-0.5 w-4 rounded-full bg-white/80 dark:bg-ink-950/60" />
+          </div>
         </div>
 
         {navItems.map((item, index) => {
@@ -127,13 +137,23 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
               aria-current={isActive ? "page" : undefined}
               className="relative z-10 flex flex-col items-center justify-center h-12 px-1 rounded-xl select-none transition-transform duration-150 active:scale-95 cursor-pointer gap-0.5"
             >
+              <span
+                className={cn(
+                  "absolute top-1 right-2 font-mono text-[8px] leading-none tracking-tighter transition-opacity",
+                  isActive
+                    ? "text-white/75 dark:text-ink-950/70 font-bold"
+                    : "text-stone-400/70 dark:text-stone-500"
+                )}
+              >
+                {item.code}
+              </span>
               <div className="grid h-5 w-5 place-items-center transition-all duration-300">
                 <Icon
                   className={cn(
                     "h-4 w-4 transition-transform duration-300",
                     isActive
                       ? "text-white dark:text-ink-950 scale-105 drop-shadow-sm font-bold"
-                      : "text-stone-400 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
+                      : cn(item.idleIconClass, "hover:text-stone-700 dark:hover:text-stone-200")
                   )}
                 />
               </div>

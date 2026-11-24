@@ -186,6 +186,15 @@ export async function ProjectShell({
             </div>
 
             <div className="sidebar-expanded-only mt-3 rounded-xl border border-stone-200/80 bg-stone-50/70 p-3 dark:border-white/10 dark:bg-white/[0.03] space-y-2">
+              <div className="flex items-center justify-between border-b border-stone-200/70 pb-1.5 mb-2 dark:border-white/10">
+                <span className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-stone-400 dark:text-stone-500">
+                  STUDIO CHANNEL
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  LIVE
+                </span>
+              </div>
               <div className="flex items-center gap-2 min-w-0">
                 <span aria-hidden="true" className={`inline-block h-2 w-2 shrink-0 rounded-full ${dotColor}`} />
                 <h1 className="text-lg font-bold leading-snug text-stone-900 dark:text-stone-100 truncate">

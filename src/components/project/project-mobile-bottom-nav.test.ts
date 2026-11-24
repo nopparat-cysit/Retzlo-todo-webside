@@ -52,4 +52,13 @@ describe("ProjectMobileBottomNav floating detached and transfer animation", () =
     expect(source).toContain("projectId?: string");
     expect(source).toContain("retzlo_last_project_id");
   });
+
+  it("renders 4-channel studio mixer deck codes and domain color accents", () => {
+    expect(source).toContain('code: "01"');
+    expect(source).toContain('code: "02"');
+    expect(source).toContain('code: "03"');
+    expect(source).toContain('code: "04"');
+    expect(source).toContain("item.idleIconClass");
+    expect(source).toContain("item.code");
+  });
 });

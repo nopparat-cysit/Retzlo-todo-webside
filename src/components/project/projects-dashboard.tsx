@@ -875,7 +875,10 @@ export function ProjectsDashboard({
                 </div>
                 <div className="flex items-center gap-1.5 min-w-0">
                   <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-dusk-amber">Retzlo</span>
-                  <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">· Studio</span>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-stone-200/80 bg-stone-100/80 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-stone-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    STUDIO DECK
+                  </span>
                 </div>
               </div>
               <div className="flex items-center gap-1 rounded-xl border border-stone-200/80 bg-stone-100/70 p-1 dark:border-white/10 dark:bg-white/[0.035] shrink-0">
@@ -1112,10 +1115,12 @@ export function ProjectsDashboard({
                   <button
                     type="button"
                     onClick={() => setViewMode("boards")}
-                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 shadow-sm dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-2.5 py-2 sm:py-1.5 text-xs font-bold text-indigo-700 shadow-[0_2px_0_rgba(0,0,0,0.05)] active:translate-y-[1px] active:shadow-none transition-all dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
                   >
-                    <KanbanSquare className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
-                    <span>Boards Hub</span>
+                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-md bg-indigo-500/15 text-indigo-600 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
+                      <KanbanSquare className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="truncate">Boards Hub</span>
                     <span className="rounded-full bg-indigo-100 px-1.5 py-0.5 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/25 dark:text-dusk-lavender">
                       {activeProject.boardsList?.length ?? activeProject.counts.boards}
                     </span>
@@ -1123,26 +1128,32 @@ export function ProjectsDashboard({
 
                   <Link
                     href={`/project/${activeProject.id}/calendar`}
-                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-cyan/40 dark:hover:bg-dusk-cyan/10 dark:hover:text-dusk-cyan"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-stone-200/80 bg-stone-50/60 px-2.5 py-2 sm:py-1.5 text-xs font-medium text-stone-600 shadow-[0_2px_0_rgba(0,0,0,0.05)] active:translate-y-[1px] active:shadow-none transition-all hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-cyan/40 dark:hover:bg-dusk-cyan/10 dark:hover:text-dusk-cyan"
                   >
-                    <CalendarDays className="h-3.5 w-3.5 text-teal-600 dark:text-dusk-cyan" />
-                    <span>Calendar</span>
+                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-md bg-teal-500/10 text-teal-600 dark:bg-dusk-cyan/15 dark:text-dusk-cyan">
+                      <CalendarDays className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="truncate">Calendar</span>
                   </Link>
 
                   <Link
                     href={`/project/${activeProject.id}/diary`}
-                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-amber/40 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-stone-200/80 bg-stone-50/60 px-2.5 py-2 sm:py-1.5 text-xs font-medium text-stone-600 shadow-[0_2px_0_rgba(0,0,0,0.05)] active:translate-y-[1px] active:shadow-none transition-all hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-amber/40 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
                   >
-                    <BookOpenCheck className="h-3.5 w-3.5 text-amber-500 dark:text-dusk-amber" />
-                    <span>Diary</span>
+                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-md bg-amber-500/10 text-amber-500 dark:bg-dusk-amber/15 dark:text-dusk-amber">
+                      <BookOpenCheck className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="truncate">Diary</span>
                   </Link>
 
                   <Link
                     href={`/project/${activeProject.id}/notes`}
-                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-rose/40 dark:hover:bg-dusk-rose/10 dark:hover:text-dusk-rose"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-stone-200/80 bg-stone-50/60 px-2.5 py-2 sm:py-1.5 text-xs font-medium text-stone-600 shadow-[0_2px_0_rgba(0,0,0,0.05)] active:translate-y-[1px] active:shadow-none transition-all hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-rose/40 dark:hover:bg-dusk-rose/10 dark:hover:text-dusk-rose"
                   >
-                    <FileText className="h-3.5 w-3.5 text-rose-500 dark:text-dusk-rose" />
-                    <span>Notes</span>
+                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-md bg-rose-500/10 text-rose-500 dark:bg-dusk-rose/15 dark:text-dusk-rose">
+                      <FileText className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="truncate">Notes</span>
                     <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-inherit">
                       {activeProject.counts.notes}
                     </span>
@@ -1150,10 +1161,12 @@ export function ProjectsDashboard({
 
                   <Link
                     href={`/project/${activeProject.id}/members`}
-                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-stone-300 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-stone-200/80 bg-stone-50/60 px-2.5 py-2 sm:py-1.5 text-xs font-medium text-stone-600 shadow-[0_2px_0_rgba(0,0,0,0.05)] active:translate-y-[1px] active:shadow-none transition-all hover:border-stone-300 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
                   >
-                    <Users className="h-3.5 w-3.5 text-stone-500 dark:text-stone-300" />
-                    <span>Members</span>
+                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-md bg-emerald-500/10 text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-300">
+                      <Users className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="truncate">Members</span>
                     <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-inherit">
                       {activeProject.counts.members}
                     </span>
@@ -1161,10 +1174,12 @@ export function ProjectsDashboard({
 
                   <Link
                     href={`/project/${activeProject.id}/rewards`}
-                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-amber/40 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-stone-200/80 bg-stone-50/60 px-2.5 py-2 sm:py-1.5 text-xs font-medium text-stone-600 shadow-[0_2px_0_rgba(0,0,0,0.05)] active:translate-y-[1px] active:shadow-none transition-all hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-amber/40 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
                   >
-                    <Gift className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
-                    <span>Rewards</span>
+                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-md bg-amber-500/10 text-amber-600 dark:bg-dusk-amber/15 dark:text-dusk-amber">
+                      <Gift className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="truncate">Rewards</span>
                   </Link>
                 </div>
 

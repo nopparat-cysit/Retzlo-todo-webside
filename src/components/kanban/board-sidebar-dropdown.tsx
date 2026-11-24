@@ -185,21 +185,23 @@ export function BoardSidebarDropdown({
       {/* ── Accordion Header: Boards ── */}
       <div
         className={cn(
-          "group/header relative flex h-10 w-full cursor-pointer items-center justify-between rounded-lg border px-3 text-sm transition duration-200",
+          "group/header relative flex h-10.5 w-full cursor-pointer items-center justify-between rounded-xl border px-2.5 text-sm transition duration-200",
           isBoardRoute
-            ? "border-dusk-lavender/30 bg-dusk-lavender/10 text-stone-900 font-semibold dark:text-stone-100"
+            ? "border-indigo-300/80 bg-gradient-to-r from-indigo-50/90 via-white to-indigo-50/40 shadow-[0_2px_8px_rgba(79,70,229,0.12),inset_0_1px_0_rgba(255,255,255,0.9)] text-stone-900 font-semibold dark:border-dusk-lavender/45 dark:from-dusk-lavender/20 dark:via-dusk-lavender/10 dark:to-transparent dark:shadow-[0_4px_14px_rgba(169,162,255,0.15),inset_0_1px_0_rgba(255,255,255,0.12)] dark:text-stone-100"
             : "border-transparent bg-transparent text-stone-600 hover:border-stone-300/40 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:border-white/10 dark:hover:bg-white/[0.055] dark:hover:text-stone-100"
         )}
         onClick={toggleAccordion}
       >
-        <div className="flex min-w-0 items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2.5">
           {dragHandle}
-          <FolderKanban
+          <span
             className={cn(
-              "project-sidebar-icon h-4 w-4 shrink-0 transition-colors",
-              isBoardRoute ? "text-dusk-lavender" : "text-stone-400 group-hover/header:text-stone-200"
+              "grid h-7 w-7 shrink-0 place-items-center rounded-lg border bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:bg-dusk-lavender/15 dark:border-dusk-lavender/30 dark:text-dusk-lavender transition-all",
+              isBoardRoute ? "shadow-sm scale-105" : "opacity-85 group-hover/header:opacity-100"
             )}
-          />
+          >
+            <FolderKanban className="project-sidebar-icon h-3.5 w-3.5 shrink-0" />
+          </span>
           <span className="sidebar-expanded-only truncate font-medium">Boards</span>
           <span className="sidebar-expanded-only rounded-full bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-stone-400">
             {boardsList.length}
